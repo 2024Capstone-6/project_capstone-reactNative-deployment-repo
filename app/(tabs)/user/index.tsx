@@ -1,20 +1,10 @@
-import { StyleSheet } from 'react-native';
-
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { View } from 'react-native';
 
 export default function UserScreen() {
   return (
-    <ThemedView style={styles.container}>
+    <View className="flex-1 items-center justify-center">
       <ThemedText type="title">User</ThemedText>
-    </ThemedView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

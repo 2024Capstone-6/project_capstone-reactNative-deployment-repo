@@ -1,20 +1,10 @@
-import { StyleSheet } from 'react-native';
-
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { View } from 'react-native';
 
 export default function ConversationScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Conversation</ThemedText>
-    </ThemedView>
+    <View className="flex-1 items-center justify-center">
+      <ThemedText type="title">다양한 상황을 선택하여 챗봇과 대화해보세요!</ThemedText>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
