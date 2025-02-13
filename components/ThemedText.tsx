@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     lineHeight: 32,
   },
   title: {
+    fontFamily: 'Roboto',
     fontSize: 25,
     fontWeight: 'bold',
     lineHeight: 32,
