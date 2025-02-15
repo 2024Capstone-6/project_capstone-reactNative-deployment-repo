@@ -1,12 +1,12 @@
 import { ThemedText } from './ThemedText';
 import React from 'react';
 
-type TestLevelCardProps = {
+type LevelCardProps = {
   level: string;
   type?: 'default' | 'defaultRegular' | 'pageTitle' | 'title' | 'subtitle' | 'link';
 };
 
-export const TestLevelCard = React.memo(({ level, type = 'default' }: TestLevelCardProps) => (
+export const LevelCard = React.memo(({ level, type = 'default' }: LevelCardProps) => (
   <ThemedText className="test-level" type={type} accessibilityLabel={`${level} level button`}>
     {level}
   </ThemedText>

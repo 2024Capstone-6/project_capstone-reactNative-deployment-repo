@@ -1,6 +1,6 @@
 import { View, ScrollView } from 'react-native';
 import { ThemedText } from './ThemedText';
-import { TestLevelCard } from './TestLevelCard';
+import { LevelCard } from './LevelCard';
 import React from 'react';
 
 type TestSectionProps = {
@@ -15,7 +15,7 @@ export const TestSection = React.memo(({ title, levels }: TestSectionProps) => (
     </ThemedText>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
       {levels.map((level, index) => (
-        <TestLevelCard key={`${title}-${level}-${index}`} level={level} />
+        <LevelCard key={`${title}-${level}-${index}`} level={level} />
       ))}
     </ScrollView>
   </View>
