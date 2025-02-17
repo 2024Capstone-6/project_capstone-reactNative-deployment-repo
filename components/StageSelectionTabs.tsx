@@ -7,9 +7,10 @@ type StageSelectionTabsProps = {
 };
 
 export const StageSelectionTabs = ({ onTabPress }: StageSelectionTabsProps) => {
-  // 내부적으로 어떤 탭이 활성화되었는지 관리
+  // 현재 선택된 탭 상태 관리
   const [activeTab, setActiveTab] = useState<'단어' | '문법'>('단어');
 
+  // 클릭 시 상태 업데이트 및 콜백 함수 호출
   const handlePress = (tab: '단어' | '문법') => {
     setActiveTab(tab);
     onTabPress(tab);
@@ -17,7 +18,7 @@ export const StageSelectionTabs = ({ onTabPress }: StageSelectionTabsProps) => {
 
   return (
     <View className="flex-row justify-around sticky top-0">
-      {/* 단어 탭 */}
+      {/* 단어 탭 버튼 */}
       <TouchableOpacity
         className={`px-5 py-2 ${activeTab === '단어' ? 'border-b-2 border-red-500' : ''}`}
         onPress={() => handlePress('단어')}
@@ -27,7 +28,7 @@ export const StageSelectionTabs = ({ onTabPress }: StageSelectionTabsProps) => {
         </ThemedText>
       </TouchableOpacity>
 
-      {/* 문법 탭 */}
+      {/* 문법 탭 버튼 */}
       <TouchableOpacity
         className={`px-5 py-2 ${activeTab === '문법' ? 'border-b-2 border-red-500' : ''}`}
         onPress={() => handlePress('문법')}

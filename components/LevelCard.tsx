@@ -7,6 +7,7 @@ type LevelCardProps = {
 };
 
 export const LevelCard = React.memo(({ level, type = 'default' }: LevelCardProps) => (
+  // 레벨 카드 컴포넌트
   <ThemedText className="test-level" type={type} accessibilityLabel={`${level} level button`}>
     {level}
   </ThemedText>
