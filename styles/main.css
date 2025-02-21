@@ -1,0 +1,17 @@
+.container {
+  flex: 1;
+  justify-content: center;
+  align-items: left;
+}
+
+.test-level {
+  aspect-ratio: 1;
+  background-color: #fff;
+  border: 1px solid #ff6b6b;
+  border-radius: 10px;
+  box-shadow: 3px 1.5px 1.5px rgba(0, 0, 0, 0.1);
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
