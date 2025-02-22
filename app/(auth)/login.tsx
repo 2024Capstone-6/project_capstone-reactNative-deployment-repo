@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import { Colors } from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '../../components/ThemedText';
-//import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login() {
   const router = useRouter();
@@ -11,19 +11,47 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  /*   const handleLogin = async () => {
+  /* const handleLogin = async () => {
     try {
-      // TODO: 실제 API 호출로 대체
-      if (email && password) {
-        // 임시 토큰 저장 (실제 구현시 서버에서 받은 토큰으로 대체)
-        await AsyncStorage.setItem('userToken', 'dummy-token');
-        console.log('로그인 성공');
-        router.replace('/(tabs)');
-      } else {
+      if (!email || !password) {
         setError('이메일과 비밀번호를 입력해주세요.');
+        return;
       }
+
+      const response = await fetch(`${process.env.BACKEND_URL}/auth/signin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      // 응답 타입 확인
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('서버 응답이 잘못되었습니다. API 서버를 확인해주세요.');
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || '로그인에 실패했습니다.');
+      }
+
+      await AsyncStorage.setItem('userToken', data.token);
+      console.log('로그인 성공');
+      router.replace('/(tabs)');
     } catch (err) {
-      setError('로그인에 실패했습니다.');
+      console.log('로그인 에러:', err);
+      if (err instanceof TypeError && err.message.includes('Network request failed')) {
+        setError('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
+      } else {
+        setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
+      }
     }
   }; */
 
@@ -58,7 +86,7 @@ export default function Login() {
         <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
 
         {/* 로그인 버튼 */}
-        <TouchableOpacity className="bg-[#ff6b6b] p-2.5 rounded-lg mt-2.5">
+        <TouchableOpacity className="bg-[#ff6b6b] p-2.5 rounded-lg mt-2.5" /* onPress={handleLogin} */>
           <Text className="text-white text-center font-semibold text-base">Login</Text>
         </TouchableOpacity>
 

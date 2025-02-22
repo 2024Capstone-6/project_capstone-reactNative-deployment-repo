@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View } from 'react-native';
 
 import 'react-native-reanimated';
 import '../global.css';
@@ -16,9 +17,9 @@ const InitialLayout = () => {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  useEffect(() => {
+  /* useEffect(() => {
     checkAuthStatus();
-  }, []);
+  }, []); */
 
   useEffect(() => {
     if (isAuthenticated === null) return;
@@ -26,22 +27,37 @@ const InitialLayout = () => {
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!isAuthenticated && !inAuthGroup) {
-      // 인증되지 않은 사용자를 로그인 화면으로 리다이렉트
       router.replace('/(auth)/login');
     } else if (isAuthenticated && inAuthGroup) {
-      // 인증된 사용자를 메인 화면으로 리다이렉트
       router.replace('/(tabs)');
     }
   }, [isAuthenticated, segments]);
 
-  const checkAuthStatus = async () => {
+  /* const checkAuthStatus = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
-      setIsAuthenticated(!!token);
+
+      if (token) {
+        // 토큰 유효성 검사
+        const response = await fetch('YOUR_API_URL/auth/verify', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          setIsAuthenticated(true);
+        } else {
+          await AsyncStorage.removeItem('userToken');
+          setIsAuthenticated(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
     } catch (error) {
       setIsAuthenticated(false);
     }
-  };
+  }; */
 
   return (
     <Stack>
