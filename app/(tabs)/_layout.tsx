@@ -2,10 +2,19 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../contexts/AuthContext';
+import { Redirect } from 'expo-router';
 
 import { Colors } from '@/constants/Colors';
 
 export default function TabLayout() {
+  const { isSignedIn } = useAuth();
+
+  // 인증되지 않은 경우 로그인 페이지로 리다이렉트
+  if (!isSignedIn) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
   return (
     <Tabs
       screenOptions={{

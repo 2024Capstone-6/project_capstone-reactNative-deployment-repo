@@ -5,10 +5,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View } from 'react-native';
 
 import 'react-native-reanimated';
 import '../global.css';
+import { AuthProvider } from '../contexts/AuthContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -17,9 +17,9 @@ const InitialLayout = () => {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  /* useEffect(() => {
+  useEffect(() => {
     checkAuthStatus();
-  }, []); */
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated === null) return;
@@ -33,31 +33,39 @@ const InitialLayout = () => {
     }
   }, [isAuthenticated, segments]);
 
-  /* const checkAuthStatus = async () => {
+  const checkAuthStatus = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
+      console.log('Stored token:', token);
 
       if (token) {
-        // 토큰 유효성 검사
-        const response = await fetch('YOUR_API_URL/auth/verify', {
+        // /profile 엔드포인트로 토큰 검증
+        const response = await fetch(`${process.env.BACKEND_URL}/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
           },
         });
 
+        console.log('Profile response status:', response.status);
+
         if (response.ok) {
           setIsAuthenticated(true);
+          console.log('Token verified successfully');
         } else {
+          console.log('Token verification failed');
           await AsyncStorage.removeItem('userToken');
           setIsAuthenticated(false);
         }
       } else {
+        console.log('No token found');
         setIsAuthenticated(false);
       }
     } catch (error) {
+      console.error('Auth status check error:', error);
       setIsAuthenticated(false);
     }
-  }; */
+  };
 
   return (
     <Stack>
@@ -84,9 +92,11 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={DefaultTheme}>
-      <InitialLayout />
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider value={DefaultTheme}>
+        <InitialLayout />
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
