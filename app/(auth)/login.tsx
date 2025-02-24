@@ -15,24 +15,19 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  /**
-   * 로그인 처리 함수
-   * 사용자 인증을 처리하고 성공 시 토큰을 저장
-   */
+  // 로그인 처리 함수
   const handleLogin = async () => {
     try {
-      // 입력값 검증
+      // 입력값 유효성 검사
       if (!email || !password) {
         setError('이메일과 비밀번호를 입력해주세요.');
         return;
       }
 
-      // 로그인 요청
+      // 로그인 API 요청
       const response = await fetch(`${ENV.API_URL}/auth/signin`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
@@ -40,35 +35,24 @@ export default function Login() {
 
       // 에러 처리
       if (!response.ok) {
-        switch (data.message) {
-          case 'Invalid credentials':
-            throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
-          case 'User not found':
-            throw new Error('등록되지 않은 이메일입니다.');
-          default:
-            throw new Error(data.message || '로그인에 실패했습니다.');
-        }
+        throw new Error(
+          data.message === 'Invalid credentials'
+            ? '이메일 또는 비밀번호가 올바르지 않습니다.'
+            : data.message || '로그인에 실패했습니다.'
+        );
       }
 
-      // 토큰 검증 및 저장
-      const token = data.accessToken;
-      if (!token) {
-        throw new Error('토큰이 없습니다.');
+      // 토큰 검증
+      if (!data.accessToken) {
+        throw new Error('Token is missing');
       }
 
-      // 토큰 저장 및 인증 상태 업데이트
-      await AsyncStorage.setItem('userToken', token);
-      setIsSignedIn(true); // 인증 상태 업데이트
-
-      // 메인 화면으로 이동
+      // 로그인 성공 처리
+      await AsyncStorage.setItem('userToken', data.accessToken);
+      setIsSignedIn(true);
       router.replace('/(tabs)/home');
     } catch (err) {
-      console.error('로그인 에러:', err);
-      if (err instanceof TypeError && err.message.includes('Network request failed')) {
-        setError('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
-      } else {
-        setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
-      }
+      setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
     }
   };
 
@@ -76,16 +60,14 @@ export default function Login() {
     <View className="flex-1 h-full" style={{ backgroundColor: Colors.tint }}>
       {/* 헤더 섹션 */}
       <View className="h-[35%] p-4 ml-2 mb-10 flex-col items-start justify-end">
-        <Text className="text-white text-4xl font-bold">배우는 즐거움, </Text>
+        <Text className="text-white text-4xl font-bold">배우는 즐거움,</Text>
         <Text className="text-white text-4xl font-bold">이곳에서 시작하세요!</Text>
       </View>
 
-      {/* 로그인 폼 섹션 */}
+      {/* 로그인 폼 */}
       <View className="p-2 h-[65%] rounded-tl-[100px] flex-1" style={{ backgroundColor: Colors.background }}>
-        {/* 에러 메시지 */}
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        {error && <Text style={styles.errorText}>{error}</Text>}
 
-        {/* 이메일 입력 */}
         <ThemedText type="default" className="mt-14 p-1">
           Email
         </ThemedText>
@@ -95,13 +77,19 @@ export default function Login() {
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          placeholder="이메일을 입력하세요"
         />
 
-        {/* 비밀번호 입력 */}
         <ThemedText type="default" className="mt-2 p-1">
           Password
         </ThemedText>
-        <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          placeholder="비밀번호를 입력하세요"
+        />
 
         {/* 로그인 버튼 */}
         <TouchableOpacity className="bg-[#ff6b6b] p-2.5 rounded-lg mt-2.5" onPress={handleLogin}>

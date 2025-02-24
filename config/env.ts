@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
+// 플랫폼별 API URL을 반환하는 함수
 const getApiUrl = () => {
   const apiUrls = Constants.expoConfig?.extra?.apiUrl;
 
@@ -16,6 +17,7 @@ const getApiUrl = () => {
   });
 };
 
+// 환경 설정 객체
 export const ENV = {
   API_URL: getApiUrl(),
 };

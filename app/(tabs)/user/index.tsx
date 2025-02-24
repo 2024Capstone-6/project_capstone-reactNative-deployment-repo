@@ -10,10 +10,10 @@ export default function UserScreen() {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('userToken');
-      console.log('토큰 제거 완료');
+      console.log('Token removed successfully');
       router.push('/(auth)/login');
     } catch (error) {
-      console.error('로그아웃 중 오류 발생:', error);
+      console.error('Error during logout:', error);
     }
   };
 
@@ -22,7 +22,7 @@ export default function UserScreen() {
       <ThemedText type="title">User</ThemedText>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <ThemedText style={styles.logoutText}>로그아웃</ThemedText>
+        <ThemedText style={styles.logoutText}>Logout</ThemedText>
       </TouchableOpacity>
     </View>
   );

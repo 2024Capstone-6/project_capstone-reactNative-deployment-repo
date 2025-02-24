@@ -8,7 +8,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import 'react-native-reanimated';
 import '../global.css';
+
 import { AuthProvider } from '../contexts/AuthContext';
+import { ENV } from '../config/env';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,14 +42,12 @@ const InitialLayout = () => {
 
       if (token) {
         // /profile 엔드포인트로 토큰 검증
-        const response = await fetch(`${process.env.BACKEND_URL}/profile`, {
+        const response = await fetch(`${ENV.API_URL}/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: 'application/json',
           },
         });
-
-        console.log('Profile response status:', response.status);
 
         if (response.ok) {
           setIsAuthenticated(true);
