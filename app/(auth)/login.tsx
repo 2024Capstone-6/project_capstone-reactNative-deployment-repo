@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '../../components/ThemedText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth } from '../../contexts/AuthContext';
+
+import { useAuth } from '../../contexts/AuthContext'; // 인증 상태 관리
+import { ENV } from '../../config/env'; // 백엔드 서버 주소 설정
 
 export default function Login() {
   const router = useRouter();
@@ -25,16 +27,8 @@ export default function Login() {
         return;
       }
 
-      // 플랫폼별 백엔드 URL 설정
-      const backendUrl = Platform.select({
-        web: 'http://localhost:4000',
-        android: 'http://10.0.2.2:4000',
-        ios: 'http://localhost:4000',
-        default: 'http://192.168.0.11:4000',
-      });
-
       // 로그인 요청
-      const response = await fetch(`${backendUrl}/auth/signin`, {
+      const response = await fetch(`${ENV.API_URL}/auth/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

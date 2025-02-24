@@ -23,6 +23,14 @@
       }
     },
     "plugins": ["expo-router"],
-    "newArchEnabled": true
+    "newArchEnabled": true,
+    "extra": {
+      "apiUrl": {
+        "web": "http://localhost:4000",
+        "android": "http://10.0.2.2:4000",
+        "ios": "http://localhost:4000",
+        "default": "http://192.168.0.11:4000"
+      }
+    }
   }
 }
