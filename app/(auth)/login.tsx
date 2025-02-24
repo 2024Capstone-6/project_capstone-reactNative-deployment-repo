@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '../../components/ThemedText';
@@ -50,7 +50,14 @@ export default function Login() {
       // 로그인 성공 처리
       await AsyncStorage.setItem('userToken', data.accessToken);
       setIsSignedIn(true);
-      router.replace('/(tabs)/home');
+
+      if (Platform.OS === 'web') {
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+      } else {
+        router.replace('/(tabs)/home');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
     }

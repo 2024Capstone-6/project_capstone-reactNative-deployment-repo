@@ -1,5 +1,5 @@
 import { ThemedText } from '@/components/ThemedText';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { Colors } from '../../../constants/Colors';
@@ -11,7 +11,12 @@ export default function UserScreen() {
     try {
       await AsyncStorage.removeItem('userToken');
       console.log('Token removed successfully');
-      router.push('/(auth)/login');
+
+      if (Platform.OS === 'web') {
+        window.location.href = '/';
+      } else {
+        router.push('/(auth)/login');
+      }
     } catch (error) {
       console.error('Error during logout:', error);
     }
