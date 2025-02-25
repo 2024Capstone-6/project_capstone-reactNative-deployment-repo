@@ -1,4 +1,3 @@
-import { ThemedText } from '@/components/ThemedText';
 import { TestSection } from '@/components/TestSection';
 import { StageSelectionTabs } from '@/components/StageSelectionTabs';
 

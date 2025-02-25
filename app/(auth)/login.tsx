@@ -5,12 +5,13 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '../../components/ThemedText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { useAuth } from '../../contexts/AuthContext'; // 인증 상태 관리
-import { ENV } from '../../config/env'; // 백엔드 서버 주소 설정
+import { useAuth } from '../../contexts/AuthContext'; // 전역 인증 상태 관리
+import { ENV } from '../../config/env'; // 환경 변수 설정
 
 export default function Login() {
   const router = useRouter();
   const { setIsSignedIn } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -24,7 +25,7 @@ export default function Login() {
         return;
       }
 
-      // 로그인 API 요청
+      // 서버에 로그인 요청
       const response = await fetch(`${ENV.API_URL}/auth/signin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -33,7 +34,7 @@ export default function Login() {
 
       const data = await response.json();
 
-      // 에러 처리
+      // 로그인 실패 시 에러 처리
       if (!response.ok) {
         throw new Error(
           data.message === 'Invalid credentials'
@@ -49,8 +50,9 @@ export default function Login() {
 
       // 로그인 성공 처리
       await AsyncStorage.setItem('userToken', data.accessToken);
-      setIsSignedIn(true);
+      setIsSignedIn(true); // 전역 인증 상태 업데이트
 
+      // 추후 수정 필요....
       if (Platform.OS === 'web') {
         window.location.href = '/';
       } else {
@@ -63,16 +65,17 @@ export default function Login() {
 
   return (
     <View className="flex-1 h-full" style={{ backgroundColor: Colors.tint }}>
-      {/* 헤더 섹션 */}
+      {/* 상단 헤더 섹션 */}
       <View className="h-[35%] p-4 ml-2 mb-10 flex-col items-start justify-end">
         <Text className="text-white text-4xl font-bold">배우는 즐거움,</Text>
         <Text className="text-white text-4xl font-bold">이곳에서 시작하세요!</Text>
       </View>
 
-      {/* 로그인 폼 */}
+      {/* 로그인 폼 섹션 */}
       <View className="p-2 h-[65%] rounded-tl-[100px] flex-1" style={{ backgroundColor: Colors.background }}>
         {error && <Text style={styles.errorText}>{error}</Text>}
 
+        {/* 이메일 입력 필드 */}
         <ThemedText type="default" className="mt-14 p-1">
           Email
         </ThemedText>
@@ -85,6 +88,7 @@ export default function Login() {
           placeholder="이메일을 입력하세요"
         />
 
+        {/* 비밀번호 입력 필드 */}
         <ThemedText type="default" className="mt-2 p-1">
           Password
         </ThemedText>
@@ -115,13 +119,15 @@ export default function Login() {
           <Text className="mx-4 text-gray-500">or</Text>
           <View className="flex-1 h-[1px] bg-gray-300" />
         </View>
+
+        {/* 소셜 로그인 버튼 -- 개발 예정*/}
       </View>
     </View>
   );
 }
 
-// 스타일 정의
 const styles = StyleSheet.create({
+  // 입력 필드 스타일
   input: {
     backgroundColor: '#fff',
     padding: 12,

@@ -10,7 +10,7 @@ export default function UserScreen() {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('userToken');
-      console.log('Token removed successfully');
+      console.log('Token removed successfully'); // 확인용
 
       if (Platform.OS === 'web') {
         window.location.href = '/';
