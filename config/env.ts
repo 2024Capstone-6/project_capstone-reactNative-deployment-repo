@@ -5,9 +5,8 @@ import Constants from 'expo-constants';
 const getApiUrl = () => {
   const apiUrls = Constants.expoConfig?.extra?.apiUrl;
 
-  if (!apiUrls) {
-    return 'http://localhost:4000'; // 기본값
-  }
+  /*   console.log('Platform:', Platform.OS);
+  console.log('Selected URL:', Platform.select(apiUrls)); */
 
   return Platform.select({
     web: apiUrls.web,

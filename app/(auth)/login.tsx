@@ -52,9 +52,7 @@ export default function Login() {
       setIsSignedIn(true);
 
       if (Platform.OS === 'web') {
-        setTimeout(() => {
-          window.location.reload();
-        }, 100);
+        window.location.href = '/';
       } else {
         router.replace('/(tabs)/home');
       }
