@@ -120,7 +120,9 @@ export default function Login() {
           <View className="flex-1 h-[1px] bg-gray-300" />
         </View>
 
-        {/* 소셜 로그인 버튼 -- 개발 예정*/}
+        <TouchableOpacity className="bg-white p-2.5 rounded-lg mt-2.5" onPress={handleLogin}>
+          <Text className="text-center font-semibold text-base">Google로 시작하기</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
