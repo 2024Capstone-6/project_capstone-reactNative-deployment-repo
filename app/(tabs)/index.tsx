@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { TEST_LEVELS } from '@/constants/TestLevels';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 import React, { useState } from 'react';
 
@@ -16,6 +17,19 @@ const HomeScreen = () => {
 
   const handleTabPress = (tab: '단어' | '문법') => {
     setSelectedTab(tab);
+  };
+
+  const handleLevelSelect = (level: string) => {
+    console.log('선택된 레벨:', level);
+    console.log('현재 선택된 탭:', selectedTab);
+
+    router.push({
+      pathname: '/(tabs)/study',
+      params: {
+        level,
+        type: selectedTab,
+      },
+    });
   };
 
   return (
@@ -32,15 +46,15 @@ const HomeScreen = () => {
         <StageSelectionTabs onTabPress={handleTabPress} />
         {selectedTab === '단어' ? (
           <>
-            <TestSection title="JLPT" levels={TEST_LEVELS.JLPT} />
-            <TestSection title="JPT" levels={TEST_LEVELS.JPT} />
-            <TestSection title="BJT" levels={TEST_LEVELS.BJT} />
+            <TestSection title="JLPT" levels={TEST_LEVELS.JLPT} onLevelSelect={handleLevelSelect} />
+            <TestSection title="JPT" levels={TEST_LEVELS.JPT} onLevelSelect={handleLevelSelect} />
+            <TestSection title="BJT" levels={TEST_LEVELS.BJT} onLevelSelect={handleLevelSelect} />
           </>
         ) : (
           <>
-            <TestSection title="JLPT" levels={TEST_LEVELS.JLPT} />
-            <TestSection title="JPT" levels={TEST_LEVELS.JPT} />
-            <TestSection title="BJT" levels={TEST_LEVELS.BJT} />
+            <TestSection title="JLPT" levels={TEST_LEVELS.JLPT} onLevelSelect={handleLevelSelect} />
+            <TestSection title="JPT" levels={TEST_LEVELS.JPT} onLevelSelect={handleLevelSelect} />
+            <TestSection title="BJT" levels={TEST_LEVELS.BJT} onLevelSelect={handleLevelSelect} />
           </>
         )}
       </View>
