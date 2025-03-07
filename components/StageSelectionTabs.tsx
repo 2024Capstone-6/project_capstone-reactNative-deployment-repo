@@ -28,7 +28,7 @@ export const StageSelectionTabs = ({ onTabPress, selectedLevel }: StageSelection
       <View className={`flex-row justify-around ${selectedLevel ? 'w-full' : ''}`}>
         {/* 단어 탭 버튼 */}
         <TouchableOpacity
-          className={`px-5 py-2 ${activeTab === '단어' ? 'border-b-2 border-red-500' : ''}`}
+          className={`mr-12 px-5 py-2 ${activeTab === '단어' ? 'border-b-2 border-red-500' : ''}`}
           onPress={() => handlePress('단어')}
         >
           <ThemedText type="defaultRegular" className={activeTab === '단어' ? 'text-red-500' : 'text-gray-500'}>
@@ -38,7 +38,7 @@ export const StageSelectionTabs = ({ onTabPress, selectedLevel }: StageSelection
 
         {/* 문법 탭 버튼 */}
         <TouchableOpacity
-          className={`px-5 py-2 ${activeTab === '문법' ? 'border-b-2 border-red-500' : ''}`}
+          className={`ml-12 px-5 py-2 ${activeTab === '문법' ? 'border-b-2 border-red-500' : ''}`}
           onPress={() => handlePress('문법')}
         >
           <ThemedText type="defaultRegular" className={activeTab === '문법' ? 'text-red-500' : 'text-gray-500'}>
