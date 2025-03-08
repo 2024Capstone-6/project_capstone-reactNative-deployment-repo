@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { StageSelectionTabs } from '../../components/StageSelectionTabs';
 import { TestLevel } from '../../constants/TestLevels';
-import { StudyCard } from '../../components/StudyCard';
+import { StudyCard } from '../../components/study/StudyCard';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function StudyPage() {
@@ -20,9 +20,7 @@ export default function StudyPage() {
   return (
     <View className="flex-1">
       <StageSelectionTabs selectedLevel={selectedLevel} onTabPress={handleTabPress} />
-      <View className="flex-1 p-4">
-        {selectedTab === '단어' ? <StudyCard /> : <View>{/* 문법 학습 컨텐츠 */}</View>}
-      </View>
+      <View className="flex-1 p-4">{selectedTab === '단어' ? <StudyCard /> : <StudyCard />}</View>
     </View>
   );
 }

@@ -1,17 +1,19 @@
 import React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { Colors } from '../constants/Colors';
+import { ThemedText } from '../ThemedText';
+import { Colors } from '../../constants/Colors';
 import { TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
+import { WordContent } from './WordContent';
+import { GrammarContent } from './GrammarContent';
 import { useLocalSearchParams } from 'expo-router';
 
 export const StudyCard = () => {
-  const { level } = useLocalSearchParams<{ level: string }>();
+  const { level, type } = useLocalSearchParams<{ level: string; type: string }>();
 
   return (
     <View className="flex-1 h-full top-8 m-4" style={{ backgroundColor: Colors.background }}>
+      {/* 레벨 및 뒤로가기 버튼 */}
       <View className="flex-row items-center mb-6">
         <Ionicons
           name="arrow-back-outline"
@@ -19,8 +21,13 @@ export const StudyCard = () => {
           className="m-1 text-[#ff6b6b]"
           accessibilityLabel="arrow-back-outline icon"
         />
-        <ThemedText type="pageTitle">{level}</ThemedText>
+        {type === '단어' ? (
+          <ThemedText type="pageTitle">{level} 단어</ThemedText>
+        ) : (
+          <ThemedText type="pageTitle">{level} 문법</ThemedText>
+        )}
       </View>
+      {/* 검색 입력 필드 */}
       <View className="flex-row items-center p-1">
         <Ionicons name="search-outline" size={22} className="mr-1 text-[#ff6b6b]" />
         <TextInput
@@ -28,7 +35,11 @@ export const StudyCard = () => {
           placeholder="검색할 단어를 입력하세요"
         />
       </View>
-      <View className="h-[70%] border-2 border-[#ff6b6b] rounded-md p-2 m-1 bg-white"></View>
+      {/* 학습 컨텐츠 */}
+      <View className="h-[70%] border-2 border-[#ff6b6b] rounded-md p-2 m-1 bg-white">
+        {type === '단어' ? <WordContent /> : <GrammarContent />}
+      </View>
+      {/* 버튼 컨테이너 */}
       <View className="flex-row items-center p-1">
         <TouchableOpacity
           style={{
