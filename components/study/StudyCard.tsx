@@ -8,6 +8,7 @@ import { WordContent } from './WordContent';
 import { GrammarContent } from './GrammarContent';
 import { useLocalSearchParams } from 'expo-router';
 import { router } from 'expo-router';
+
 interface Word {
   word_id: number;
   word: string;

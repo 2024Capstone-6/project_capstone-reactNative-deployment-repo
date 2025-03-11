@@ -20,10 +20,6 @@ export default function StudyPage() {
   const [words, setWords] = useState<Word[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const selectedLevel: TestLevel = {
-    level: level || 'JLPT N5', // 기본값 설정
-  };
-
   useEffect(() => {
     const fetchWords = async () => {
       try {
