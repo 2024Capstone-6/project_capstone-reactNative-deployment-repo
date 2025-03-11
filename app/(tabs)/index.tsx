@@ -31,12 +31,18 @@ const HomeScreen = () => {
 
   return (
     <View className="flex-1 h-full" style={{ backgroundColor: Colors.tint }}>
-      <View className="h-[20%] m-2 p-2 flex-row items-end">
-        <Ionicons name="sparkles-outline" size={24} color="white" accessibilityLabel="Sparkles icon" />
+      <View className="h-[18%] m-2 p-2 flex-row items-end">
+        <Ionicons
+          className="ml-2 mb-1.5"
+          name="sparkles-outline"
+          size={24}
+          color="white"
+          accessibilityLabel="Sparkles icon"
+        />
         <Text className="ml-2 text-white text-3xl font-bold">日本クローバー</Text>
       </View>
 
-      <View className="p-4 h-[80%]  rounded-t-3xl flex-1" style={{ backgroundColor: Colors.background }}>
+      <View className="py-1 px-[5%] h-[80%] rounded-t-3xl flex-1" style={{ backgroundColor: Colors.background }}>
         {/* 단어/문법 탭 */}
         <StageSelectionTabs onTabPress={handleTabPress} />
         {selectedTab === '단어' ? (

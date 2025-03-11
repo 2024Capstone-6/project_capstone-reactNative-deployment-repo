@@ -11,6 +11,7 @@ type LevelCardProps = {
 
 export const LevelCard = React.memo(({ level, type = 'default', onPress }: LevelCardProps) => (
   <TouchableOpacity
+    style={styles.levelCard}
     className="test-level"
     onPress={() => onPress?.(level)}
     accessibilityLabel={`${level} level button`}

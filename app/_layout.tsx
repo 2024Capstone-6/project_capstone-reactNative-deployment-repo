@@ -42,7 +42,7 @@ const InitialLayout = () => {
   const checkAuthStatus = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
-      console.log('Stored token:', token); // 테스트용
+      // console.log('Stored token:', token); // 테스트용
 
       if (token) {
         const response = await fetch(`${ENV.API_URL}/profile`, {

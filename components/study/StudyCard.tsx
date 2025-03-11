@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { ThemedText } from '../ThemedText';
 import { Colors } from '../../constants/Colors';
@@ -7,9 +7,44 @@ import { Ionicons } from '@expo/vector-icons';
 import { WordContent } from './WordContent';
 import { GrammarContent } from './GrammarContent';
 import { useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
+interface Word {
+  word_id: number;
+  word: string;
+  word_meaning: string;
+  word_furigana: string;
+  word_level: string;
+  word_quiz: string[];
+}
 
-export const StudyCard = () => {
-  const { level, type } = useLocalSearchParams<{ level: string; type: string }>();
+interface StudyCardProps {
+  words: Word[];
+  type: '단어' | '문법';
+}
+
+export const StudyCard: React.FC<StudyCardProps> = ({ words, type }) => {
+  const { level } = useLocalSearchParams<{ level: string }>();
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleNext = () => {
+    if (currentIndex < words.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const handleRetry = () => {
+    // 한번 더 학습 로직 구현
+    console.log('한번 더 학습');
+  };
+
+  // words가 없거나 비어있는 경우 처리
+  if (!words || words.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text>로딩 중...</Text>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 h-full top-8 m-4" style={{ backgroundColor: Colors.background }}>
@@ -20,6 +55,7 @@ export const StudyCard = () => {
           size={24}
           className="m-1 text-[#ff6b6b]"
           accessibilityLabel="arrow-back-outline icon"
+          onPress={() => router.back()}
         />
         {type === '단어' ? (
           <ThemedText type="pageTitle">{level} 단어</ThemedText>
@@ -37,8 +73,13 @@ export const StudyCard = () => {
       </View>
       {/* 학습 컨텐츠 */}
       <View className="h-[70%] border-2 border-[#ff6b6b] rounded-md p-2 m-1 bg-white">
-        {type === '단어' ? <WordContent /> : <GrammarContent />}
+        {type === '단어' && words[currentIndex] ? (
+          <WordContent word={words[currentIndex]} totalCount={words.length} currentIndex={currentIndex} />
+        ) : (
+          <GrammarContent />
+        )}
       </View>
+
       {/* 버튼 컨테이너 */}
       <View className="flex-row items-center p-1">
         <TouchableOpacity
@@ -52,7 +93,7 @@ export const StudyCard = () => {
             borderWidth: 1.5,
             marginRight: 10,
           }}
-          onPress={() => {}}
+          onPress={handleRetry}
         >
           <Text style={{ color: 'black' }}>한번 더</Text>
         </TouchableOpacity>
@@ -67,10 +108,11 @@ export const StudyCard = () => {
             borderRadius: 5,
             marginRight: 10,
           }}
-          onPress={() => {}}
+          onPress={handleNext}
+          disabled={currentIndex === words.length - 1}
         >
           <Ionicons name="arrow-forward-outline" size={18} color="white" className="mr-2" />
-          <Text style={{ color: 'white' }}>다음으로 넘어가기</Text>
+          <Text style={{ color: 'white' }}>다음 {type === '단어' ? '단어' : '문법'}로 넘어가기</Text>
         </TouchableOpacity>
       </View>
     </View>
