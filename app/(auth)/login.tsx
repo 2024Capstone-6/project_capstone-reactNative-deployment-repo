@@ -66,13 +66,13 @@ export default function Login() {
   return (
     <View className="flex-1 h-full" style={{ backgroundColor: Colors.tint }}>
       {/* 상단 헤더 섹션 */}
-      <View className="h-[35%] p-4 ml-2 mb-10 flex-col items-start justify-end">
+      <View className="h-[35%] p-[5%] ml-2 mb-10 flex-col items-start justify-end">
         <Text className="text-white text-4xl font-bold">배우는 즐거움,</Text>
         <Text className="text-white text-4xl font-bold">이곳에서 시작하세요!</Text>
       </View>
 
       {/* 로그인 폼 섹션 */}
-      <View className="p-2 h-[65%] rounded-tl-[100px] flex-1" style={{ backgroundColor: Colors.background }}>
+      <View className="p-[5%] h-[65%] rounded-tl-[100px] flex-1" style={{ backgroundColor: Colors.background }}>
         {error && <Text style={styles.errorText}>{error}</Text>}
 
         {/* 이메일 입력 필드 */}
@@ -101,16 +101,16 @@ export default function Login() {
         />
 
         {/* 로그인 버튼 */}
-        <TouchableOpacity className="bg-[#ff6b6b] p-2.5 rounded-lg mt-2.5" onPress={handleLogin}>
+        <TouchableOpacity className="bg-[#ff6b6b] p-2 rounded-lg mt-2.5" onPress={handleLogin}>
           <Text className="text-white text-center font-semibold text-base">Login</Text>
         </TouchableOpacity>
 
         {/* 회원가입 버튼 */}
         <TouchableOpacity
-          className="bg-white p-2.5 rounded-lg mt-2 border border-[#ff6b6b]"
+          className="bg-white p-2 rounded-lg mt-2 border border-[#ff6b6b]"
           onPress={() => router.push('/register')}
         >
-          <Text className="text-center font-semibold text-base">Sign up</Text>
+          <Text className="text-center text-base">Sign up</Text>
         </TouchableOpacity>
 
         {/* 구분선 */}
@@ -120,9 +120,9 @@ export default function Login() {
           <View className="flex-1 h-[1px] bg-gray-300" />
         </View>
 
-        <TouchableOpacity className="bg-white p-2.5 rounded-lg mt-2.5" onPress={handleLogin}>
+        {/*         <TouchableOpacity className="bg-white p-2.5 rounded-lg mt-2.5" onPress={handleLogin}>
           <Text className="text-center font-semibold text-base">Google로 시작하기</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );

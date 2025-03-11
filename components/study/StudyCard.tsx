@@ -49,6 +49,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) =
   const handleRetry = () => {
     // 한번 더 학습 로직 구현
     console.log('한번 더 학습');
+    setCurrentIndex(0);
   };
 
   // 데이터가 없는 경우 처리
@@ -61,7 +62,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) =
   }
 
   return (
-    <View className="flex-1 h-full top-8 m-4" style={{ backgroundColor: Colors.background }}>
+    <View className="flex-1 h-full top-10 m-4" style={{ backgroundColor: Colors.background }}>
       {/* 레벨 및 뒤로가기 버튼 */}
       <View className="flex-row items-center mb-6">
         <Ionicons
@@ -71,12 +72,11 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) =
           accessibilityLabel="arrow-back-outline icon"
           onPress={() => router.back()}
         />
-        {type === '단어' ? (
-          <ThemedText type="pageTitle">{level} 단어</ThemedText>
-        ) : (
-          <ThemedText type="pageTitle">{level} 문법</ThemedText>
-        )}
+        <ThemedText type="pageTitle">
+          {level} {type}
+        </ThemedText>
       </View>
+
       {/* 검색 입력 필드 */}
       <View className="flex-row items-center p-1">
         <Ionicons name="search-outline" size={22} className="mr-1 text-[#ff6b6b]" />
@@ -85,6 +85,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) =
           placeholder="검색할 단어를 입력하세요"
         />
       </View>
+
       {/* 학습 컨텐츠 */}
       <View className="h-[70%] border-2 border-[#ff6b6b] rounded-md p-2 m-1 bg-white">
         {type === '단어' ? (
