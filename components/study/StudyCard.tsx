@@ -18,17 +18,30 @@ interface Word {
   word_quiz: string[];
 }
 
+interface Grammar {
+  grammar_id: number;
+  grammar: string;
+  grammar_meaning: string;
+  grammar_furigana: string;
+  grammar_level: string;
+  grammar_quiz: string[];
+  grammar_example: string[];
+}
+
 interface StudyCardProps {
   words: Word[];
+  grammars: Grammar[];
   type: '단어' | '문법';
 }
 
-export const StudyCard: React.FC<StudyCardProps> = ({ words, type }) => {
+export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) => {
   const { level } = useLocalSearchParams<{ level: string }>();
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const items = type === '단어' ? words : grammars;
+
   const handleNext = () => {
-    if (currentIndex < words.length - 1) {
+    if (currentIndex < items.length - 1) {
       setCurrentIndex(currentIndex + 1);
     }
   };
@@ -38,11 +51,11 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, type }) => {
     console.log('한번 더 학습');
   };
 
-  // words가 없거나 비어있는 경우 처리
-  if (!words || words.length === 0) {
+  // 데이터가 없는 경우 처리
+  if (!items || items.length === 0) {
     return (
       <View className="flex-1 items-center justify-center">
-        <Text>로딩 중...</Text>
+        <Text>데이터를 불러오는 중...</Text>
       </View>
     );
   }
@@ -74,10 +87,10 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, type }) => {
       </View>
       {/* 학습 컨텐츠 */}
       <View className="h-[70%] border-2 border-[#ff6b6b] rounded-md p-2 m-1 bg-white">
-        {type === '단어' && words[currentIndex] ? (
+        {type === '단어' ? (
           <WordContent word={words[currentIndex]} totalCount={words.length} currentIndex={currentIndex} />
         ) : (
-          <GrammarContent />
+          <GrammarContent grammar={grammars[currentIndex]} totalCount={grammars.length} currentIndex={currentIndex} />
         )}
       </View>
 
@@ -110,7 +123,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, type }) => {
             marginRight: 10,
           }}
           onPress={handleNext}
-          disabled={currentIndex === words.length - 1}
+          disabled={currentIndex === items.length - 1}
         >
           <Ionicons name="arrow-forward-outline" size={18} color="white" className="mr-2" />
           <Text style={{ color: 'white' }}>다음 {type === '단어' ? '단어' : '문법'}로 넘어가기</Text>
