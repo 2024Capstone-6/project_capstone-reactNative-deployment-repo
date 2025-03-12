@@ -22,6 +22,9 @@ interface Grammar {
   grammar_level: string;
   grammar_quiz: string[];
   grammar_example: string[];
+  grammar_e_meaning: string[];
+  grammar_e_card: string[];
+  grammar_s_card: string[];
 }
 
 export default function StudyPage() {
