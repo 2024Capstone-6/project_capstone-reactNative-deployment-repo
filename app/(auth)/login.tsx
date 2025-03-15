@@ -33,6 +33,7 @@ export default function Login() {
       });
 
       const data = await response.json();
+      console.log('Login response:', data); // 서버 응답 데이터 확인
 
       // 로그인 실패 시 에러 처리
       if (!response.ok) {
@@ -48,9 +49,14 @@ export default function Login() {
         throw new Error('Token is missing');
       }
 
+      // userId가 없는 경우 토큰에서 추출
+      const userId = data.userId || data.sub || JSON.parse(atob(data.accessToken.split('.')[1])).sub;
+
       // 로그인 성공 처리
       await AsyncStorage.setItem('userToken', data.accessToken);
-      setIsSignedIn(true); // 전역 인증 상태 업데이트
+      await AsyncStorage.setItem('userId', userId.toString());
+
+      setIsSignedIn(true);
 
       // 추후 수정 필요....
       if (Platform.OS === 'web') {
@@ -59,6 +65,7 @@ export default function Login() {
         router.replace('/(tabs)/home');
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
     }
   };
