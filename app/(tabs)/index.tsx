@@ -17,7 +17,6 @@ const HomeScreen = () => {
   };
 
   const handleLevelSelect = (level: string) => {
-    console.log('선택된 타입:', selectedTab);
     router.push({
       pathname: '/(tabs)/study',
       params: {

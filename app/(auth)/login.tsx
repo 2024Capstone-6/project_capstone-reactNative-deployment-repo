@@ -33,7 +33,6 @@ export default function Login() {
       });
 
       const data = await response.json();
-      console.log('Login response:', data); // 서버 응답 데이터 확인
 
       // 로그인 실패 시 에러 처리
       if (!response.ok) {

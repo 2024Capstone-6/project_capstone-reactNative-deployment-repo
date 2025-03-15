@@ -55,10 +55,8 @@ const InitialLayout = () => {
         if (response.ok) {
           // 토큰 검증 성공 시 인증 상태 설정
           setIsAuthenticated(true);
-          console.log('Token verified successfully');
         } else {
           // 토큰 검증 실패 시 토큰 삭제 후 인증 상태 설정
-          console.log('Token verification failed');
           await AsyncStorage.removeItem('userToken');
           setIsAuthenticated(false);
         }
