@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, StyleSheet, Pressable } from 'react-native';
 import { Colors } from '../../constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+
+import { BookmarkModal } from './BookmarkModal';
 
 interface Grammar {
   grammar_id: number;
@@ -23,6 +26,7 @@ interface GrammarContentProps {
 
 export const GrammarContent: React.FC<GrammarContentProps> = ({ grammar }) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const flipAnim = useRef(new Animated.Value(0)).current;
 
   const flipCard = () => {
@@ -68,6 +72,12 @@ export const GrammarContent: React.FC<GrammarContentProps> = ({ grammar }) => {
   return (
     <View className="flex-1">
       <TouchableOpacity className="flex-1" onPress={flipCard}>
+        <View className="flex-row justify-end">
+          {/* 추가적인 버튼 생성을 위한 컨테이너 */}
+          <Pressable onPress={() => setIsModalVisible(true)}>
+            <Ionicons name="bookmark-outline" size={24} color={Colors.tint} />
+          </Pressable>
+        </View>
         <View className="flex-1 relative">
           <Animated.View style={[styles.cardFace, frontAnimatedStyle]}>
             <View className="flex-1 items-center justify-center">
@@ -107,6 +117,7 @@ export const GrammarContent: React.FC<GrammarContentProps> = ({ grammar }) => {
           </Animated.View>
         </View>
       </TouchableOpacity>
+      <BookmarkModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} />
     </View>
   );
 };

@@ -11,8 +11,8 @@ import {
 } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import { ENV } from '../../config/env';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+/* import { ENV } from '../../config/env';
+import AsyncStorage from '@react-native-async-storage/async-storage'; */
 
 interface WordBook {
   wordbook_id: number;
