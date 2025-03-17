@@ -1,18 +1,23 @@
 import { ThemedText } from './ThemedText';
 import React from 'react';
+import { TouchableOpacity } from 'react-native';
 import { StyleSheet, View } from 'react-native';
 
 type LevelCardProps = {
   level: string;
   type?: 'default' | 'defaultRegular' | 'pageTitle' | 'title' | 'subtitle' | 'link';
+  onPress?: (level: string) => void;
 };
 
-export const LevelCard = React.memo(({ level, type = 'default' }: LevelCardProps) => (
-  <View style={styles.levelCard}>
-    <ThemedText type={type} style={styles.levelText} accessibilityLabel={`${level} level button`}>
-      {level}
-    </ThemedText>
-  </View>
+export const LevelCard = React.memo(({ level, type = 'default', onPress }: LevelCardProps) => (
+  <TouchableOpacity
+    style={styles.levelCard}
+    className="test-level"
+    onPress={() => onPress?.(level)}
+    accessibilityLabel={`${level} level button`}
+  >
+    <ThemedText type={type}>{level}</ThemedText>
+  </TouchableOpacity>
 ));
 
 const styles = StyleSheet.create({

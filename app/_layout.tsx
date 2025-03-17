@@ -42,7 +42,7 @@ const InitialLayout = () => {
   const checkAuthStatus = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
-      console.log('Stored token:', token); // 테스트용
+      // console.log('Stored token:', token); // 테스트용
 
       if (token) {
         const response = await fetch(`${ENV.API_URL}/profile`, {
@@ -55,10 +55,8 @@ const InitialLayout = () => {
         if (response.ok) {
           // 토큰 검증 성공 시 인증 상태 설정
           setIsAuthenticated(true);
-          console.log('Token verified successfully');
         } else {
           // 토큰 검증 실패 시 토큰 삭제 후 인증 상태 설정
-          console.log('Token verification failed');
           await AsyncStorage.removeItem('userToken');
           setIsAuthenticated(false);
         }
