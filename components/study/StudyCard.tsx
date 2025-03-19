@@ -86,7 +86,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) =
         <Ionicons name="search-outline" size={22} className="mr-1 text-[#ff6b6b]" />
         <TextInput
           className="flex-1 border-2 border-[#ff6b6b] rounded-md p-1.5 bg-white"
-          placeholder="검색할 단어를 입력하세요"
+          placeholder="검색어를 입력하세요"
         />
       </View>
 
