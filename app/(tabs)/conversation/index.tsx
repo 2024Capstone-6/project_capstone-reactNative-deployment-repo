@@ -1,13 +1,26 @@
 import { ThemedText } from '@/components/ThemedText';
 import { View, TouchableOpacity, Text, Animated } from 'react-native';
 import { useState } from 'react';
-import { router } from 'expo-router';
+import Chat from '@/components/conversation/chat';
+
 export default function ConversationScreen() {
   const [expandedButton, setExpandedButton] = useState<number | null>(null);
+  // 선택된 상황 저장
+  const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
 
   const handlePress = (buttonIndex: number) => {
     setExpandedButton(expandedButton === buttonIndex ? null : buttonIndex);
   };
+
+  // 상황 선택 시 채팅 화면으로 이동
+  const handleSituationPress = (situation: string) => {
+    setSelectedSituation(situation);
+  };
+
+  // 선택된 상황이 있으면 채팅 화면 표시
+  if (selectedSituation) {
+    return <Chat situation={selectedSituation} />;
+  }
 
   return (
     <View className="flex-1 m-4">
@@ -48,7 +61,7 @@ export default function ConversationScreen() {
             <View className="flex-row flex-wrap items-start justify-start w-full p-4">
               <Text
                 className="m-1 p-2 border-2 rounded-md border-[#ff6b6b] bg-white"
-                onPress={() => router.push('/conversation/chat')}
+                onPress={() => handleSituationPress('병원에서')}
               >
                 병원에서
               </Text>
