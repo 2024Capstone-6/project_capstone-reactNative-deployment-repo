@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { ThemedText } from '../ThemedText';
-import { Colors } from '../../constants/Colors';
 import { TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { WordContent } from './WordContent';
@@ -65,7 +64,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) =
   }
 
   return (
-    <View className="flex-1 h-full top-10 m-4" style={{ backgroundColor: Colors.background }}>
+    <View className="flex-1 h-full top-10 m-4">
       {/* 레벨 및 뒤로가기 버튼 */}
       {/* 추후 페이지별 분리, 컴포넌트 파일 생성 예정 */}
       <View className="flex-row items-center mb-6">

@@ -48,7 +48,7 @@ export default function ConversationScreen() {
             <View className="flex-row flex-wrap items-start justify-start w-full p-4">
               <Text
                 className="m-1 p-2 border-2 rounded-md border-[#ff6b6b] bg-white"
-                onPress={() => router.push('/conversation/hospital')}
+                onPress={() => router.push('/conversation/chat')}
               >
                 병원에서
               </Text>
