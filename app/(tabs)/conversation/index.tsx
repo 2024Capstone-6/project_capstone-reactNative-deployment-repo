@@ -1,26 +1,22 @@
 import { ThemedText } from '@/components/ThemedText';
-import { View, TouchableOpacity, Text, Animated } from 'react-native';
+import { View, TouchableOpacity, Text } from 'react-native';
 import { useState } from 'react';
-import Chat from '@/components/conversation/chat';
+import { useRouter } from 'expo-router';
 
 export default function ConversationScreen() {
   const [expandedButton, setExpandedButton] = useState<number | null>(null);
-  // 선택된 상황 저장
-  const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
+  const router = useRouter();
 
   const handlePress = (buttonIndex: number) => {
     setExpandedButton(expandedButton === buttonIndex ? null : buttonIndex);
   };
 
-  // 상황 선택 시 채팅 화면으로 이동
   const handleSituationPress = (situation: string) => {
-    setSelectedSituation(situation);
+    router.push({
+      pathname: '/(conversation)/chat',
+      params: { situation },
+    });
   };
-
-  // 선택된 상황이 있으면 채팅 화면 표시
-  if (selectedSituation) {
-    return <Chat situation={selectedSituation} />;
-  }
 
   return (
     <View className="flex-1 m-4">
