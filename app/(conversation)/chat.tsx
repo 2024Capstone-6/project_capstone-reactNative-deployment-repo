@@ -3,8 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import SituationChat from '@/components/conversation/SituationChat';
-
+// import SituationChat from '@/components/conversation/SituationChat';
+import AIChat from '@/components/conversation/AIChat';
 export default function ChatScreen() {
   const { situation } = useLocalSearchParams();
   const router = useRouter();
@@ -51,7 +51,8 @@ export default function ChatScreen() {
       </ScrollView>
 
       <View className="flex-1">
-        <SituationChat />
+        {/* <SituationChat /> */}
+        <AIChat />
       </View>
     </View>
   );

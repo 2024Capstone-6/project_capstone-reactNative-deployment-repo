@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 
 export default function SituationChat() {
   return (
-    <View className="flex-1 bottom-10 items-center justify-center">
+    <View className="flex-1 bottom-8 items-center justify-center">
       {/* 빈칸 있는 배열 */}
       <View style={styles.container} className="w-full">
         <Text>SituationChat</Text>
