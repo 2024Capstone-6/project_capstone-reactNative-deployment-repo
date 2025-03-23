@@ -2,15 +2,23 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } fr
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
 
 // import SituationChat from '@/components/conversation/SituationChat';
 import AIChat from '@/components/conversation/AIChat';
+import SituationChat from '@/components/conversation/SituationChat';
+
 export default function ChatScreen() {
   const { situation } = useLocalSearchParams();
   const router = useRouter();
+  const [isPracticeMode, setIsPracticeMode] = useState(true);
 
   const handleBack = () => {
     router.back();
+  };
+
+  const toggleMode = () => {
+    setIsPracticeMode(!isPracticeMode);
   };
 
   return (
@@ -24,8 +32,8 @@ export default function ChatScreen() {
           onPress={handleBack}
         />
         <ThemedText type="pageTitle">{situation}</ThemedText>
-        <TouchableOpacity className="justify-end ml-auto p-1 rounded-8 bg-[#ff6b6b]">
-          <Text className="text-white">실전 회화</Text>
+        <TouchableOpacity className="justify-end ml-auto p-1 rounded-8 bg-[#ff6b6b]" onPress={toggleMode}>
+          <Text className="text-white">{isPracticeMode ? '실전 회화' : '학습 모드'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -50,10 +58,7 @@ export default function ChatScreen() {
         </View>
       </ScrollView>
 
-      <View className="flex-1">
-        {/* <SituationChat /> */}
-        <AIChat />
-      </View>
+      <View className="flex-1">{isPracticeMode ? <SituationChat /> : <AIChat />}</View>
     </View>
   );
 }
