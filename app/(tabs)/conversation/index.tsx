@@ -35,18 +35,23 @@ export default function ConversationScreen() {
         <TouchableOpacity
           className={`w-full ${
             expandedButton === 0 ? 'h-[20%]' : 'h-[8%] border-2 border-[#ff6b6b] bg-white'
-          } mb-2 items-center justify-center rounded-xl`}
+          } mb-2 rounded-xl items-center justify-center`}
           onPress={() => handlePress(0)}
         >
           {expandedButton === 0 ? (
-            <View className="flex-row flex-wrap items-start justify-start w-full">
-              <Text style={styles.situationButton} onPress={() => handleSituationPress('공항에서')}>
-                공항에서
-              </Text>
-              <Text style={styles.situationButton}>호텔에서</Text>
-              <Text style={styles.situationButton}>대중교통에서</Text>
-              <Text style={styles.situationButton}>관광지에서</Text>
-              <Text style={styles.situationButton}>길 묻기</Text>
+            <View className="w-full h-full">
+              <View className="h-[40%] border-2 border-[#ff6b6b] bg-white rounded-xl items-center justify-center">
+                <Text className="text-xl">여행 중</Text>
+              </View>
+              <View className="flex-row flex-wrap items-start justify-start w-full mt-1">
+                <Text style={styles.situationButton} onPress={() => handleSituationPress('공항에서')}>
+                  공항에서
+                </Text>
+                <Text style={styles.situationButton}>호텔에서</Text>
+                <Text style={styles.situationButton}>대중교통에서</Text>
+                <Text style={styles.situationButton}>관광지에서</Text>
+                <Text style={styles.situationButton}>길 묻기</Text>
+              </View>
             </View>
           ) : (
             <Text className="text-xl">여행 중</Text>
@@ -60,14 +65,19 @@ export default function ConversationScreen() {
           onPress={() => handlePress(1)}
         >
           {expandedButton === 1 ? (
-            <View className="flex-row flex-wrap items-start justify-start w-full">
-              <Text style={styles.situationButton} onPress={() => handleSituationPress('병원에서')}>
-                병원에서
-              </Text>
-              <Text style={styles.situationButton}>은행에서</Text>
-              <Text style={styles.situationButton}>날씨 변화 대응</Text>
-              <Text style={styles.situationButton}>대중교통에서</Text>
-              <Text style={styles.situationButton}>우편물 수령</Text>
+            <View className="w-full h-full">
+              <View className="h-[40%] border-2 border-[#ff6b6b] bg-white rounded-xl items-center justify-center">
+                <Text className="text-xl">일상생활에서</Text>
+              </View>
+              <View className="flex-row flex-wrap items-start justify-start w-full mt-1">
+                <Text style={styles.situationButton} onPress={() => handleSituationPress('병원에서')}>
+                  병원에서
+                </Text>
+                <Text style={styles.situationButton}>은행에서</Text>
+                <Text style={styles.situationButton}>날씨 변화 대응</Text>
+                <Text style={styles.situationButton}>대중교통에서</Text>
+                <Text style={styles.situationButton}>우편물 수령</Text>
+              </View>
             </View>
           ) : (
             <Text className="p-2 text-xl">일상생활에서</Text>
