@@ -1,5 +1,5 @@
 import { ThemedText } from '@/components/ThemedText';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { ENV } from '@/config/env';
@@ -70,7 +70,7 @@ export default function ConversationScreen() {
               <View className="h-[40%] border-2 border-[#ff6b6b] bg-white rounded-xl items-center justify-center">
                 <Text className="text-xl">{category.category_name}</Text>
               </View>
-              <View className="flex-row flex-wrap items-start justify-start w-full mt-1">
+              <ScrollView className="flex-1 w-full" contentContainerStyle={styles.situationContainer}>
                 {category.situations.map((situation) => (
                   <Text
                     key={situation.situation_id}
@@ -80,7 +80,7 @@ export default function ConversationScreen() {
                     {situation.situation_name}
                   </Text>
                 ))}
-              </View>
+              </ScrollView>
             </View>
           ) : (
             <Text className="text-xl">{category.category_name}</Text>
@@ -99,5 +99,12 @@ const styles = StyleSheet.create({
     borderColor: '#ff6b6b',
     borderRadius: 3,
     backgroundColor: 'white',
+  },
+  situationContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    paddingVertical: 4,
   },
 });
