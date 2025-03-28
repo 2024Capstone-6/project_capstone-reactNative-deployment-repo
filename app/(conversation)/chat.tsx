@@ -61,20 +61,37 @@ export default function ChatScreen() {
     setMessages([]); // 모드 전환 시 메시지 초기화
   };
 
-  const updateMessages = (isCorrect: boolean, jpAnswer?: string, krAnswer?: string) => {
+  const updateMessages = (
+    isCorrect: boolean,
+    jpAnswer?: string,
+    krAnswer?: string,
+    nextJpQuestion?: string,
+    nextKrQuestion?: string
+  ) => {
     if (isCorrect && jpAnswer && krAnswer) {
       // 이전 메시지들을 필터링하여 마지막 사용자 메시지를 제거
       const filteredMessages = messages.filter((_, index) => index !== messages.length - 1);
 
-      // 새로운 메시지 추가 (정답 시에는 일본어와 한국어 모두 표시)
-      setMessages([
+      // 새로운 메시지들 추가
+      const newMessages = [
         ...filteredMessages,
         {
           isAI: false,
           text: krAnswer,
           jpText: jpAnswer,
         },
-      ]);
+      ];
+
+      // 다음 질문이 있으면 추가
+      if (nextKrQuestion && nextJpQuestion) {
+        newMessages.push({
+          isAI: true,
+          text: nextKrQuestion,
+          jpText: nextJpQuestion,
+        });
+      }
+
+      setMessages(newMessages);
     }
   };
 
