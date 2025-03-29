@@ -24,7 +24,8 @@ interface SituationChatProps {
     jpAnswer?: string,
     krAnswer?: string,
     nextJpQuestion?: string,
-    nextKrQuestion?: string
+    nextKrQuestion?: string,
+    nextKrAnswer?: string
   ) => void;
 }
 
@@ -98,7 +99,8 @@ export default function SituationChat({ onCorrectAnswer }: SituationChatProps) {
               currentQuestion.jp_answer,
               currentQuestion.kr_answer,
               nextQuestion.jp_question,
-              nextQuestion.kr_question
+              nextQuestion.kr_question,
+              nextQuestion.kr_answer
             );
           }
 

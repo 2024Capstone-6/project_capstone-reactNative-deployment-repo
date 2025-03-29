@@ -66,32 +66,35 @@ export default function ChatScreen() {
     jpAnswer?: string,
     krAnswer?: string,
     nextJpQuestion?: string,
-    nextKrQuestion?: string
+    nextKrQuestion?: string,
+    nextKrAnswer?: string
   ) => {
     if (isCorrect && jpAnswer && krAnswer) {
       // 이전 메시지들을 필터링하여 마지막 사용자 메시지를 제거
       const filteredMessages = messages.filter((_, index) => index !== messages.length - 1);
 
-      // 새로운 메시지들 추가
-      const newMessages = [
+      setMessages([
         ...filteredMessages,
         {
           isAI: false,
           text: krAnswer,
           jpText: jpAnswer,
         },
-      ];
-
-      // 다음 질문이 있으면 추가
-      if (nextKrQuestion && nextJpQuestion) {
-        newMessages.push({
-          isAI: true,
-          text: nextKrQuestion,
-          jpText: nextJpQuestion,
-        });
-      }
-
-      setMessages(newMessages);
+        // 다음 질문이 있으면 바로 추가
+        ...(nextKrQuestion && nextJpQuestion && nextKrAnswer
+          ? [
+              {
+                isAI: true,
+                text: nextKrQuestion,
+                jpText: nextJpQuestion,
+              },
+              {
+                isAI: false,
+                text: nextKrAnswer,
+              },
+            ]
+          : []),
+      ]);
     }
   };
 
