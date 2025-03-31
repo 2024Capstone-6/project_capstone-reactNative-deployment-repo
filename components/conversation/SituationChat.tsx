@@ -13,25 +13,27 @@ interface Question {
   kr_answer: string;
   blank_answer: string;
   choices: Array<{
-    text: string;
-    is_correct: boolean;
-    reason: string;
+    // 선택지 배열
+    text: string; // 선택지 텍스트
+    is_correct: boolean; // 정답 여부
+    reason: string; // 피드백 메시지
   }>;
+}
+
+// 채팅 메시지의 타입 정의
+interface ChatMessage {
+  isAI: boolean;
+  text: string;
+  jpText?: string;
 }
 
 // 부모 컴포넌트로부터 받는 props 타입 정의
 interface SituationChatProps {
-  onCorrectAnswer: (
-    isCorrect: boolean,
-    jpAnswer?: string,
-    krAnswer?: string,
-    nextJpQuestion?: string,
-    nextKrQuestion?: string,
-    nextKrAnswer?: string
-  ) => void;
+  messages: ChatMessage[];
+  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
-export default function SituationChat({ onCorrectAnswer }: SituationChatProps) {
+export default function SituationChat({ messages, setMessages }: SituationChatProps) {
   const { situationId } = useLocalSearchParams();
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [nextQuestion, setNextQuestion] = useState<Question | null>(null);
@@ -46,7 +48,13 @@ export default function SituationChat({ onCorrectAnswer }: SituationChatProps) {
   }, []);
 
   // 피드백 모달을 표시하는 함수
-  const showModal = (reason: string, isCorrect: boolean) => {
+  const showModal = (
+    reason: string,
+    isCorrect: boolean,
+    selectedChoice?: { is_correct: boolean },
+    currentQuestion?: Question,
+    nextQuestion?: Question
+  ) => {
     setFeedback({ message: reason, isCorrect });
     // 모달이 아래에서 위로 올라오는 애니메이션
     Animated.spring(modalAnimation, {
@@ -60,7 +68,32 @@ export default function SituationChat({ onCorrectAnswer }: SituationChatProps) {
         toValue: Dimensions.get('window').height,
         duration: 300,
         useNativeDriver: true,
-      }).start(() => setFeedback(null));
+      }).start(() => {
+        setFeedback(null);
+        // 모달이 닫힐 때 다음 질문으로 전환
+        if (selectedChoice?.is_correct && currentQuestion && nextQuestion) {
+          // 마지막 사용자 메시지를 제외한 이전 메시지들
+          const filteredMessages = messages.filter((_, index) => index !== messages.length - 1);
+          // 새로운 메시지 목록 생성
+          const newMessages = [
+            ...filteredMessages,
+            { isAI: false, text: currentQuestion.kr_answer, jpText: currentQuestion.jp_answer },
+            { isAI: true, text: nextQuestion.kr_question, jpText: nextQuestion.jp_question },
+            { isAI: false, text: nextQuestion.kr_answer },
+          ];
+          setMessages(newMessages);
+
+          setCurrentQuestion(nextQuestion);
+          setOrderIndex((prev) => prev + 1);
+          // 다음 질문 데이터 로드
+          fetch(`${ENV.API_URL}/chatbot/questions/${situationId}`)
+            .then((res) => res.json())
+            .then((questions) => {
+              const nextIndex = orderIndex + 2;
+              setNextQuestion(questions?.[nextIndex] || null);
+            });
+        }
+      });
     }, 4000);
   };
 
@@ -91,35 +124,10 @@ export default function SituationChat({ onCorrectAnswer }: SituationChatProps) {
 
       // 선택한 답변이 정답인지 확인
       const selectedChoice = currentQuestion?.choices.find((c) => c.text === choice);
-      if (!selectedChoice) return;
+      if (!selectedChoice || !currentQuestion || !nextQuestion) return;
 
       // 피드백 모달 표시
-      showModal(selectedChoice.reason, selectedChoice.is_correct);
-
-      // 정답인 경우 다음 질문으로 진행
-      if (selectedChoice.is_correct && currentQuestion && nextQuestion) {
-        onCorrectAnswer(
-          true,
-          currentQuestion.jp_answer,
-          currentQuestion.kr_answer,
-          nextQuestion.jp_question,
-          nextQuestion.kr_question,
-          nextQuestion.kr_answer
-        );
-
-        // 4초 후 다음 질문으로 전환
-        setTimeout(() => {
-          setCurrentQuestion(nextQuestion);
-          setOrderIndex((prev) => prev + 1);
-          // 다음 질문 데이터 로드
-          fetch(`${ENV.API_URL}/chatbot/questions/${situationId}`)
-            .then((res) => res.json())
-            .then((questions) => {
-              const nextIndex = orderIndex + 2;
-              setNextQuestion(questions?.[nextIndex] || null);
-            });
-        }, 4000);
-      }
+      showModal(selectedChoice.reason, selectedChoice.is_correct, selectedChoice, currentQuestion, nextQuestion);
     } catch (error) {
       console.error('답변 전송 실패:', error);
     }

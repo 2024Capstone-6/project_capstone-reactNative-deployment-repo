@@ -60,33 +60,6 @@ export default function ChatScreen() {
     setMessages([]); // 모드 전환 시 메시지 초기화
   };
 
-  // 정답 제출 시 메시지 목록을 업데이트하는 함수
-  const updateMessages = (
-    isCorrect: boolean,
-    jpAnswer?: string,
-    krAnswer?: string,
-    nextJpQuestion?: string,
-    nextKrQuestion?: string,
-    nextKrAnswer?: string
-  ) => {
-    if (!isCorrect || !jpAnswer || !krAnswer) return;
-
-    // 마지막 사용자 메시지를 제외한 이전 메시지들
-    const filteredMessages = messages.filter((_, index) => index !== messages.length - 1);
-    // 새로운 메시지 목록 생성
-    const newMessages = [...filteredMessages, { isAI: false, text: krAnswer, jpText: jpAnswer }];
-
-    // 다음 질문이 있는 경우 추가
-    if (nextKrQuestion && nextJpQuestion && nextKrAnswer) {
-      newMessages.push(
-        { isAI: true, text: nextKrQuestion, jpText: nextJpQuestion },
-        { isAI: false, text: nextKrAnswer }
-      );
-    }
-
-    setMessages(newMessages);
-  };
-
   return (
     <View className="flex-1 h-full m-[5%] p-4 top-10">
       {/* 상단 헤더: 뒤로가기, 제목, 모드 전환 버튼 */}
@@ -119,7 +92,9 @@ export default function ChatScreen() {
       </ScrollView>
 
       {/* 하단 채팅 입력 영역: 모드에 따라 다른 컴포넌트 표시 */}
-      <View className="flex-1">{isPracticeMode ? <SituationChat onCorrectAnswer={updateMessages} /> : <AIChat />}</View>
+      <View className="flex-1">
+        {isPracticeMode ? <SituationChat messages={messages} setMessages={setMessages} /> : <AIChat />}
+      </View>
     </View>
   );
 }
