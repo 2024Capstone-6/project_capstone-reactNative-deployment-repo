@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { TestLevel } from '../../constants/TestLevels';
 import { StudyCard } from '../../components/study/StudyCard';
 import { useLocalSearchParams } from 'expo-router';
 import { ENV } from '../../config/env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Word {
   word_id: number;
@@ -43,10 +43,12 @@ export default function StudyPage() {
       if (type !== '단어') return;
 
       try {
+        const token = await AsyncStorage.getItem('userToken');
         const response = await fetch(`${ENV.API_URL}/words`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
         });
         const data = await response.json();
@@ -69,10 +71,12 @@ export default function StudyPage() {
       if (type !== '문법') return;
 
       try {
+        const token = await AsyncStorage.getItem('userToken');
         const response = await fetch(`${ENV.API_URL}/grammars`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
         });
         const data = await response.json();
