@@ -29,7 +29,6 @@ interface Grammar {
 
 export default function StudyPage() {
   const params = useLocalSearchParams<{ level: string; type: string }>();
-
   const level = params.level;
   const type = params.type;
 
@@ -37,60 +36,62 @@ export default function StudyPage() {
   const [grammars, setGrammars] = useState<Grammar[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // API 호출을 위한 헤더 생성 함수
+  const getAuthHeaders = async () => {
+    const token = await AsyncStorage.getItem('userToken');
+    return {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+  };
+
+  // 데이터 가져오기 함수
+  const fetchData = async (endpoint: string, filterFn: (item: any) => boolean) => {
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${ENV.API_URL}/${endpoint}`, {
+        method: 'GET',
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(`${endpoint} 데이터를 불러오는데 실패했습니다.`);
+      }
+
+      const data = await response.json();
+      return data.filter(filterFn);
+    } catch (error) {
+      console.error(`${endpoint} 데이터 불러오기 실패:`, error);
+      return [];
+    }
+  };
+
   // 단어 데이터 가져오기
   useEffect(() => {
-    const fetchWords = async () => {
+    const loadWords = async () => {
       if (type !== '단어') return;
 
-      try {
-        const token = await AsyncStorage.getItem('userToken');
-        const response = await fetch(`${ENV.API_URL}/words`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-
-        const filteredWords = data.filter((word: Word) => word.word_level === level);
-        setWords(filteredWords);
-      } catch (error) {
-        console.error('단어 데이터 불러오기 실패:', error);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(true);
+      const filteredWords = await fetchData('words', (word: Word) => word.word_level === level);
+      setWords(filteredWords);
+      setLoading(false);
     };
 
-    fetchWords();
+    loadWords();
   }, [level, type]);
 
   // 문법 데이터 가져오기
   useEffect(() => {
-    const fetchGrammars = async () => {
+    const loadGrammars = async () => {
       if (type !== '문법') return;
 
-      try {
-        const token = await AsyncStorage.getItem('userToken');
-        const response = await fetch(`${ENV.API_URL}/grammars`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-
-        const filteredGrammars = data.filter((grammar: Grammar) => grammar.grammar_level === level);
-        setGrammars(filteredGrammars);
-      } catch (error) {
-        console.error('문법 데이터 불러오기 실패:', error);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(true);
+      const filteredGrammars = await fetchData('grammars', (grammar: Grammar) => grammar.grammar_level === level);
+      setGrammars(filteredGrammars);
+      setLoading(false);
     };
 
-    fetchGrammars();
+    loadGrammars();
   }, [level, type]);
 
   return (
