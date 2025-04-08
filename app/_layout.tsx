@@ -42,26 +42,55 @@ const InitialLayout = () => {
   const checkAuthStatus = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
-      // console.log('Stored token:', token); // 테스트용
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
 
-      if (token) {
-        const response = await fetch(`${ENV.API_URL}/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/json',
-          },
-        });
+      if (!token) {
+        console.log('No token found');
+        setIsAuthenticated(false);
+        return;
+      }
 
-        if (response.ok) {
-          // 토큰 검증 성공 시 인증 상태 설정
-          setIsAuthenticated(true);
-        } else {
-          // 토큰 검증 실패 시 토큰 삭제 후 인증 상태 설정
-          await AsyncStorage.removeItem('userToken');
+      // 프로필 정보 요청
+      const response = await fetch(`${ENV.API_URL}/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        setIsAuthenticated(true);
+      } else if (response.status === 401 && refreshToken) {
+        // 액세스 토큰이 만료된 경우 리프레시 토큰으로 갱신 시도
+        try {
+          const refreshResponse = await fetch(`${ENV.API_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+            body: JSON.stringify({ refreshToken }),
+          });
+
+          if (refreshResponse.ok) {
+            const { accessToken } = await refreshResponse.json();
+            await AsyncStorage.setItem('userToken', accessToken);
+            setIsAuthenticated(true);
+          } else {
+            // 리프레시 토큰도 만료된 경우
+            await AsyncStorage.removeItem('userToken');
+            await AsyncStorage.removeItem('refreshToken');
+            setIsAuthenticated(false);
+          }
+        } catch (error) {
+          console.error('Token refresh error:', error);
           setIsAuthenticated(false);
         }
       } else {
-        console.log('No token found');
+        // 토큰이 유효하지 않은 경우
+        await AsyncStorage.removeItem('userToken');
+        await AsyncStorage.removeItem('refreshToken');
         setIsAuthenticated(false);
       }
     } catch (error) {

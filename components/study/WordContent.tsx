@@ -45,7 +45,7 @@ export const WordContent: React.FC<WordContentProps> = ({ word }) => {
         <Text className="text-lg text-gray-500 mb-4">{word.word_furigana}</Text>
         <Text className="text-pretty text-lg text-center">{word.word_meaning}</Text>
       </View>
-      <BookmarkModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} />
+      <BookmarkModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} wordId={word.word_id} />
     </View>
   );
 };
