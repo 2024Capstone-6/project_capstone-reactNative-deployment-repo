@@ -117,7 +117,11 @@ export const GrammarContent: React.FC<GrammarContentProps> = ({ grammar }) => {
           </Animated.View>
         </View>
       </TouchableOpacity>
-      <BookmarkModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} />
+      <BookmarkModal
+        isVisible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        grammarId={grammar.grammar_id}
+      />
     </View>
   );
 };
