@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
-import { ThemedText } from '../ThemedText';
-import { TextInput } from 'react-native';
+import { View, TouchableOpacity, Text, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, router } from 'expo-router';
+
+import { ThemedText } from '../ThemedText';
 import { WordContent } from './WordContent';
 import { GrammarContent } from './GrammarContent';
-import { useLocalSearchParams } from 'expo-router';
-import { router } from 'expo-router';
 
 interface Word {
   word_id: number;

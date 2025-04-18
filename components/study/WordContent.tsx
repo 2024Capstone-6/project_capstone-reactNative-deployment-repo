@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Colors } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+
+import { Colors } from '../../constants/Colors';
 import { BookmarkModal } from './BookmarkModal';
 
 interface Word {

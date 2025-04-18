@@ -1,13 +1,12 @@
-import { TestSection } from '@/components/TestSection';
-import { StageSelectionTabs } from '@/components/StageSelectionTabs';
-
+import React, { useState } from 'react';
 import { View, Text } from 'react-native';
-import { Colors } from '@/constants/Colors';
-import { TEST_LEVELS } from '@/constants/TestLevels';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-import React, { useState } from 'react';
+import { TestSection } from '@/components/TestSection';
+import { StageSelectionTabs } from '@/components/StageSelectionTabs';
+import { Colors } from '@/constants/Colors';
+import { TEST_LEVELS } from '@/constants/TestLevels';
 
 const HomeScreen = () => {
   const [selectedTab, setSelectedTab] = useState<'단어' | '문법'>('단어');

@@ -7,6 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useAuth } from '../../contexts/AuthContext'; // 전역 인증 상태 관리
 import { ENV } from '../../config/env'; // 환경 변수 설정
+import { ERROR_MESSAGES } from '../../constants/ErrorMessages';
+import { navigateToHome } from '../../utils/navigation';
 
 export default function Login() {
   const router = useRouter();
@@ -15,13 +17,14 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // 로그인 처리 함수
   const handleLogin = async () => {
     try {
       // 입력값 유효성 검사
       if (!email || !password) {
-        setError('이메일과 비밀번호를 입력해주세요.');
+        setError(ERROR_MESSAGES.LOGIN.EMPTY_FIELDS);
         return;
       }
 
@@ -42,14 +45,14 @@ export default function Login() {
       if (!response.ok) {
         throw new Error(
           data.message === 'Invalid credentials'
-            ? '이메일 또는 비밀번호가 올바르지 않습니다.'
-            : data.message || '로그인에 실패했습니다.'
+            ? ERROR_MESSAGES.LOGIN.INVALID_CREDENTIALS
+            : data.message || ERROR_MESSAGES.LOGIN.LOGIN_FAILED
         );
       }
 
       // 토큰 검증
       if (!data.accessToken) {
-        throw new Error('Token is missing');
+        throw new Error(ERROR_MESSAGES.LOGIN.TOKEN_MISSING);
       }
 
       // userId가 없는 경우 토큰에서 추출
@@ -60,16 +63,10 @@ export default function Login() {
       await AsyncStorage.setItem('userId', userId.toString());
 
       setIsSignedIn(true);
-
-      // 추후 수정 필요....
-      if (Platform.OS === 'web') {
-        window.location.href = '/';
-      } else {
-        router.replace('/(tabs)/home');
-      }
+      navigateToHome();
     } catch (err) {
       console.error('Login error:', err);
-      setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
+      setError(err instanceof Error ? err.message : ERROR_MESSAGES.LOGIN.LOGIN_FAILED);
     }
   };
 
@@ -96,6 +93,8 @@ export default function Login() {
           autoCapitalize="none"
           keyboardType="email-address"
           placeholder="이메일을 입력하세요"
+          autoComplete="email"
+          textContentType="emailAddress"
         />
 
         {/* 비밀번호 입력 필드 */}
