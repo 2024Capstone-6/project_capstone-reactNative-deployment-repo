@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { StudyCard } from '../../components/study/StudyCard';
 import { useLocalSearchParams } from 'expo-router';
-import { ENV } from '../../config/env';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { ENV } from '../../config/env';
+import { StudyCard } from '../../components/study/StudyCard';
 
 interface Word {
   word_id: number;
