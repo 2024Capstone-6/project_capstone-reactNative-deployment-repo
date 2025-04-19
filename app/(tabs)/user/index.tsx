@@ -1,14 +1,21 @@
 import { ThemedText } from '@/components/ThemedText';
 import { View, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { Colors } from '../../../constants/Colors';
 import { useEffect, useState } from 'react';
 import { ENV } from '@/config/env';
-
 interface WordBook {
   wordbook_id: number;
   wordbook_title: string;
+}
+
+interface GrammarBook {
+  grammarbook_id: number;
+  grammarbook_title: string;
 }
 
 interface UserProfile {
@@ -19,8 +26,8 @@ interface UserProfile {
 export default function UserScreen() {
   const router = useRouter();
   const [wordBooks, setWordBooks] = useState<WordBook[]>([]);
+  const [grammarBooks, setGrammarBooks] = useState<GrammarBook[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-
   const getAuthHeaders = async (contentType = false) => {
     const token = await AsyncStorage.getItem('userToken');
     const headers: Record<string, string> = {
@@ -68,9 +75,27 @@ export default function UserScreen() {
     }
   };
 
+  const fetchGrammarBooks = async () => {
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${ENV.API_URL}/grammars/books`, { headers });
+
+      if (!response.ok) {
+        throw new Error('문법장 목록을 불러오는데 실패했습니다.');
+      }
+
+      const data = await response.json();
+      setGrammarBooks(data);
+    } catch (error) {
+      console.error('문법장 목록 조회 오류:', error);
+      Alert.alert('오류', '문법장 목록을 불러오는데 실패했습니다.');
+    }
+  };
+
   useEffect(() => {
     fetchUserProfile();
     fetchWordBooks();
+    fetchGrammarBooks();
   }, []);
 
   const handleLogout = async () => {
@@ -90,9 +115,11 @@ export default function UserScreen() {
 
   return (
     <View className="flex-1">
-      <View className="top-0 w-full h-[35%] z-10 rounded-b-[50%] bg-[#ff6b6b] relative">
+      <View className="top-0 w-full h-[25%] z-10 rounded-b-[80%] bg-[#ff6b6b] relative">
         {/* 프로필 이미지 */}
-        <View className="absolute bottom-[-70px] left-1/2 -translate-x-1/2 w-[150px] h-[150px] rounded-full bg-white shadow-md"></View>
+        <View className="absolute bottom-[-70px] left-1/2 -translate-x-1/2 w-[150px] h-[150px] rounded-full bg-white shadow-md items-center justify-center">
+          <Ionicons name="person-outline" size={70} color={Colors.tint} />
+        </View>
       </View>
       <View className="items-center mt-20">
         <ThemedText className="text-lg font-bold">{userProfile?.email?.split('@')[0] || '로딩 중...'}</ThemedText>
@@ -101,17 +128,25 @@ export default function UserScreen() {
       <View className="items-start m-4">
         <ThemedText className="text-lg text-[#ff6b6b] font-bold mb-2">단어</ThemedText>
         <View className="flex-row w-full h-[100px] mb-4">
-          {wordBooks.map((wordBook) => (
-            <TouchableOpacity key={wordBook.wordbook_id} style={styles.levelCard}>
-              <ThemedText type="default">{wordBook.wordbook_title}</ThemedText>
-            </TouchableOpacity>
-          ))}
+          {/* 가로 스크롤 레벨 카드 목록 */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
+            {wordBooks.map((wordBook) => (
+              <TouchableOpacity key={wordBook.wordbook_id} style={styles.levelCard}>
+                <ThemedText type="default">{wordBook.wordbook_title}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
         <ThemedText className="text-lg text-[#ff6b6b] font-bold mb-2">문법</ThemedText>
         <View className="flex-row w-full h-[100px] mb-4">
-          <TouchableOpacity style={styles.levelCard}>
-            <ThemedText type="default">JPT</ThemedText>
-          </TouchableOpacity>
+          {/* 가로 스크롤 레벨 카드 목록 */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
+            {grammarBooks.map((grammarBook) => (
+              <TouchableOpacity key={grammarBook.grammarbook_id} style={styles.levelCard}>
+                <ThemedText type="default">{grammarBook.grammarbook_title}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
       </View>
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
