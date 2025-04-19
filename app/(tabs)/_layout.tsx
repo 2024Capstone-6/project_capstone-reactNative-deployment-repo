@@ -1,11 +1,15 @@
+import { Platform } from 'react-native';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../contexts/AuthContext';
 import { Redirect } from 'expo-router';
 
+import { useAuth } from '../../contexts/AuthContext';
 import { Colors } from '@/constants/Colors';
+
+// 탭 아이콘 타입 정의
+type TabIconName = 'home' | 'book' | 'chatbubbles' | 'person';
 
 export default function TabLayout() {
   const { isSignedIn } = useAuth();

@@ -9,10 +9,11 @@ import {
   TextInput,
   FlatList,
 } from 'react-native';
-import { Colors } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import { ENV } from '../../config/env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { Colors } from '../../constants/Colors';
+import { ENV } from '../../config/env';
 
 interface WordBook {
   wordbook_id: number;
@@ -116,15 +117,10 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
   // 모달이 열릴 때마다 단어장/문법장 목록 조회
   useEffect(() => {
     if (isVisible) {
-      if (wordId) {
-        setActiveTab('word');
-        fetchWordBooks();
-      } else if (grammarId) {
-        setActiveTab('grammar');
-        fetchGrammarBooks();
-      }
+      fetchWordBooks();
+      fetchGrammarBooks();
     }
-  }, [isVisible, wordId, grammarId]);
+  }, [isVisible]);
 
   // 단어장 생성
   const createWordBook = async () => {
@@ -409,26 +405,28 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
   );
 
   // 탭 전환 컴포넌트
-  const renderTabs = () => (
-    <View className="flex-row mb-4 border-b border-gray-200">
-      <TouchableOpacity
-        className={`flex-1 py-2 ${activeTab === 'word' ? 'border-b-2 border-[#ff6b6b]' : ''}`}
-        onPress={() => setActiveTab('word')}
-      >
-        <Text className={`text-center ${activeTab === 'word' ? 'text-[#ff6b6b] font-bold' : 'text-gray-500'}`}>
-          단어장
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        className={`flex-1 py-2 ${activeTab === 'grammar' ? 'border-b-2 border-[#ff6b6b]' : ''}`}
-        onPress={() => setActiveTab('grammar')}
-      >
-        <Text className={`text-center ${activeTab === 'grammar' ? 'text-[#ff6b6b] font-bold' : 'text-gray-500'}`}>
-          문법장
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
+  const renderTabs = () => {
+    return (
+      <View className="flex-row mb-4 border-b border-gray-200">
+        <TouchableOpacity
+          className={`flex-1 py-2 ${activeTab === 'word' ? 'border-b-2 border-[#ff6b6b]' : ''}`}
+          onPress={() => setActiveTab('word')}
+        >
+          <Text className={`text-center ${activeTab === 'word' ? 'text-[#ff6b6b] font-bold' : 'text-gray-500'}`}>
+            단어장
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          className={`flex-1 py-2 ${activeTab === 'grammar' ? 'border-b-2 border-[#ff6b6b]' : ''}`}
+          onPress={() => setActiveTab('grammar')}
+        >
+          <Text className={`text-center ${activeTab === 'grammar' ? 'text-[#ff6b6b] font-bold' : 'text-gray-500'}`}>
+            문법장
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <Modal animationType="slide" transparent={true} visible={isVisible} onRequestClose={onClose}>

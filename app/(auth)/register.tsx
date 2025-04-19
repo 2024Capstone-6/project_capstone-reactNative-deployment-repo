@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from '../../constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ENV } from '../../config/env';
+
+import { Colors } from '../../constants/Colors';
+import { ERROR_MESSAGES } from '../../constants/ErrorMessages';
+import { validateEmail, validatePassword, validatePasswordMatch } from '../../utils/validation';
+import { registerUser } from '../../utils/api';
+import { navigateToHome } from '../../utils/navigation';
 
 export default function Register() {
   const router = useRouter();
@@ -18,175 +22,135 @@ export default function Register() {
   const [confirmPwErr, setConfirmPwErr] = useState(false);
   const [emailErr, setEmailErr] = useState(false);
 
+  const handleEmailBlur = () => {
+    const { isValid, error } = validateEmail(email);
+    setEmailErr(!isValid);
+    if (!isValid) {
+      setError(error || '');
+    }
+  };
+
   const handlePasswordBlur = () => {
-    const passwordRegExp = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%.*?&])[A-Za-z\d@$!%*.?&]{6,16}$/;
-    if (!passwordRegExp.test(password)) {
-      setError('비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다.');
-      setPwErr(true);
-    } else {
-      setError('');
-      setPwErr(false);
+    const { isValid, error } = validatePassword(password);
+    setPwErr(!isValid);
+    if (!isValid) {
+      setError(error || '');
     }
   };
 
   const handleConfirmPasswordBlur = () => {
-    if (password !== checkPassword) {
-      setError('비밀번호가 일치하지 않습니다.');
-      setConfirmPwErr(true);
-    } else {
-      setError('');
-      setConfirmPwErr(false);
-    }
-  };
-
-  const handleEmailBlur = () => {
-    const emailRegExp = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    if (!emailRegExp.test(email)) {
-      setError('올바른 이메일 형식이 아닙니다.');
-      setEmailErr(true);
-    } else {
-      setError('');
-      setEmailErr(false);
+    const { isValid, error } = validatePasswordMatch(password, checkPassword);
+    setConfirmPwErr(!isValid);
+    if (!isValid) {
+      setError(error || '');
     }
   };
 
   const handleRegister = async () => {
     try {
-      if (!name || !email || !password || !checkPassword) {
-        setError('모든 필드를 입력해주세요.');
+      // 입력값 유효성 검사
+      const emailValidation = validateEmail(email);
+      const passwordValidation = validatePassword(password);
+      const passwordMatchValidation = validatePasswordMatch(password, checkPassword);
+
+      if (!emailValidation.isValid) {
+        setError(emailValidation.error || '');
+        setEmailErr(true);
         return;
       }
 
-      handleEmailBlur();
-      if (emailErr) return;
-
-      handlePasswordBlur();
-      if (pwErr) return;
-
-      handleConfirmPasswordBlur();
-      if (confirmPwErr) return;
-
-      const requestData = {
-        name: name.trim(),
-        email: email.trim(),
-        password,
-        social_check: 0 || null,
-      };
-
-      console.log('전송할 데이터 타입:', {
-        name: typeof name,
-        email: typeof email,
-        password: typeof password,
-      });
-      console.log('전체 요청 정보:', {
-        url: `${ENV.API_URL}/auth/signup`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: requestData,
-      });
-
-      const response = await fetch(`${ENV.API_URL}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      console.log('응답 헤더:', {
-        contentType: response.headers.get('content-type'),
-        status: response.status,
-      });
-
-      const responseText = await response.text();
-      console.log('서버 응답 본문:', responseText);
-
-      if (response.ok) {
-        alert('회원가입 성공');
-        router.replace('/login');
-      } else {
-        try {
-          const data = JSON.parse(responseText);
-          setError(data.message || data.errors || '회원가입에 실패했습니다.');
-        } catch (e) {
-          setError('서버 응답을 처리할 수 없습니다: ' + responseText);
-        }
+      if (!passwordValidation.isValid) {
+        setError(passwordValidation.error || '');
+        setPwErr(true);
+        return;
       }
-    } catch (err: any) {
-      console.error('회원가입 에러:', {
-        name: err.name,
-        message: err.message,
-        stack: err.stack,
-      });
-      setError(err.message || '회원가입 처리 중 오류가 발생했습니다.');
+
+      if (!passwordMatchValidation.isValid) {
+        setError(passwordMatchValidation.error || '');
+        setConfirmPwErr(true);
+        return;
+      }
+
+      // 회원가입 요청
+      const result = await registerUser(name, email, password);
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      // 회원가입 성공 처리
+      await AsyncStorage.setItem('userToken', result.data?.accessToken || '');
+      await AsyncStorage.setItem('userId', result.data?.userId || '');
+
+      navigateToHome();
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err instanceof Error ? err.message : ERROR_MESSAGES.REGISTER.REGISTER_FAILED);
     }
   };
 
   return (
-    <View className="flex-1 h-full items-center justify-center" style={{ backgroundColor: Colors.tint }}>
-      <View className="h-[70%] w-[75%] rounded-[8px] p-4 justify-center" style={{ backgroundColor: Colors.background }}>
+    <View style={styles.container}>
+      <View className="w-[80%] h-[60%] bg-white rounded-lg p-4 items-center justify-center">
         <Text style={styles.title}>회원가입</Text>
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
+        <TextInput style={styles.input} placeholder="이름" value={name} onChangeText={setName} autoCapitalize="none" />
         <TextInput
-          style={[styles.input, emailErr ? styles.inputError : null]}
-          placeholder="이름"
-          value={name}
-          onChangeText={setName}
-          autoCapitalize="words"
-        />
-
-        <TextInput
-          style={[styles.input, emailErr ? styles.inputError : null]}
+          style={[styles.input, emailErr && styles.errorInput]}
           placeholder="이메일"
           value={email}
           onChangeText={setEmail}
           onBlur={handleEmailBlur}
           autoCapitalize="none"
           keyboardType="email-address"
+          autoComplete="email"
+          textContentType="emailAddress"
         />
-
         <View style={styles.passwordContainer}>
           <TextInput
-            style={[styles.input, pwErr ? styles.inputError : null, { flex: 1 }]}
+            style={[styles.input, pwErr && styles.errorInput]}
             placeholder="비밀번호"
             value={password}
             onChangeText={setPassword}
             onBlur={handlePasswordBlur}
             secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoComplete="new-password"
+            textContentType="newPassword"
           />
-          <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowPassword(!showPassword)}>
-            <Text>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+          <TouchableOpacity
+            className="justify-center items-center"
+            style={styles.showPasswordButton}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <Text>{showPassword ? '🙄' : '🫣'}</Text>
           </TouchableOpacity>
         </View>
-
         <View style={styles.passwordContainer}>
           <TextInput
-            style={[styles.input, confirmPwErr ? styles.inputError : null, { flex: 1 }]}
+            style={[styles.input, confirmPwErr && styles.errorInput]}
             placeholder="비밀번호 확인"
             value={checkPassword}
             onChangeText={setCheckPassword}
             onBlur={handleConfirmPasswordBlur}
             secureTextEntry={!showCheckPassword}
+            autoCapitalize="none"
+            autoComplete="new-password"
+            textContentType="newPassword"
           />
-          <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowCheckPassword(!showCheckPassword)}>
-            <Text>{showCheckPassword ? '👁️' : '👁️‍🗨️'}</Text>
+          <TouchableOpacity
+            className="justify-center items-center"
+            style={styles.showPasswordButton}
+            onPress={() => setShowCheckPassword(!showCheckPassword)}
+          >
+            <Text>{showCheckPassword ? '🙄' : '🫣'}</Text>
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          onPress={handleRegister}
-          className="rounded-md p-3 mt-4"
-          style={{ backgroundColor: Colors.tint }}
-        >
-          <Text className="text-white text-center font-bold">가입하기</Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+          <Text style={styles.buttonText}>회원가입</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.replace('/login')}>
-          <Text style={styles.loginLink}>이미 계정이 있으신가요? 로그인</Text>
+        <TouchableOpacity style={styles.loginButton} onPress={() => router.push('/(auth)/login')}>
+          <Text>이미 계정이 있으신가요? 로그인</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -194,42 +158,64 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: Colors.tint,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 10,
-    textAlign: 'center',
+    marginBottom: 40,
+    color: Colors.tint,
   },
   input: {
-    height: 40,
+    width: '100%',
+    height: 35,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: Colors.tint,
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
   },
-  inputError: {
-    borderColor: 'red',
+  errorInput: {
+    borderColor: Colors.tint,
   },
   passwordContainer: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 10,
-    height: 40,
     justifyContent: 'center',
   },
-  loginLink: {
-    marginTop: 15,
-    textAlign: 'center',
+  showPasswordButton: {
+    position: 'absolute',
+    right: 10,
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  error: {
+    fontSize: 12,
     color: Colors.tint,
+    marginBottom: 10,
+  },
+  button: {
+    width: '100%',
+    height: 35,
+    backgroundColor: Colors.tint,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  loginButton: {
+    marginTop: 20,
   },
 });

@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet, Pressable } from 'react-native';
-import { Colors } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 
+import { Colors } from '../../constants/Colors';
 import { BookmarkModal } from './BookmarkModal';
 
 interface Grammar {
@@ -117,7 +117,11 @@ export const GrammarContent: React.FC<GrammarContentProps> = ({ grammar }) => {
           </Animated.View>
         </View>
       </TouchableOpacity>
-      <BookmarkModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} />
+      <BookmarkModal
+        isVisible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        grammarId={grammar.grammar_id}
+      />
     </View>
   );
 };
