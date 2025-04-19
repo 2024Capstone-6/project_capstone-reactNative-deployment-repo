@@ -3,7 +3,6 @@ import { View, TouchableOpacity, Text, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, router } from 'expo-router';
 
-import { Colors } from '../../constants/Colors';
 import { ThemedText } from '../ThemedText';
 import { WordContent } from './WordContent';
 import { GrammarContent } from './GrammarContent';
