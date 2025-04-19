@@ -151,20 +151,11 @@ export default function RootLayout() {
     <ErrorBoundary>
       <ThemeProvider value={DefaultTheme}>
         <AuthProvider>
-          <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
-          <Stack
-            screenOptions={{
-              headerStyle: {
-                backgroundColor: '#1a1a1a',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}
-          >
+          <Stack>
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(conversation)" options={{ headerShown: false }} />
+            <Stack.Screen name="(settings)/settings" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
         </AuthProvider>

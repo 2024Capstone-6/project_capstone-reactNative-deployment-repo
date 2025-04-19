@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
@@ -28,13 +28,7 @@ const HomeScreen = () => {
   return (
     <View className="flex-1 h-full" style={{ backgroundColor: Colors.tint }}>
       <View className="h-[18%] m-2 p-2 flex-row items-end">
-        <Ionicons
-          className="ml-2 mb-1.5"
-          name="sparkles-outline"
-          size={24}
-          color="white"
-          accessibilityLabel="Sparkles icon"
-        />
+        <Image source={require('../../assets/images/logo.png')} style={{ width: 40, height: 40 }} />
         <Text className="ml-2 text-white text-3xl font-bold">日本クローバー</Text>
       </View>
 

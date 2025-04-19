@@ -116,6 +116,10 @@ export default function UserScreen() {
   return (
     <View className="flex-1">
       <View className="top-0 w-full h-[25%] z-10 rounded-b-[80%] bg-[#ff6b6b] relative">
+        {/* 설정 버튼 */}
+        <TouchableOpacity onPress={() => router.push('/settings')} className="absolute top-12 right-4 z-20">
+          <Ionicons name="settings-outline" size={24} color="white" />
+        </TouchableOpacity>
         {/* 프로필 이미지 */}
         <View className="absolute bottom-[-70px] left-1/2 -translate-x-1/2 w-[150px] h-[150px] rounded-full bg-white shadow-md items-center justify-center">
           <Ionicons name="person-outline" size={70} color={Colors.tint} />
@@ -128,7 +132,6 @@ export default function UserScreen() {
       <View className="items-start m-4">
         <ThemedText className="text-lg text-[#ff6b6b] font-bold mb-2">단어</ThemedText>
         <View className="flex-row w-full h-[100px] mb-4">
-          {/* 가로 스크롤 레벨 카드 목록 */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
             {wordBooks.map((wordBook) => (
               <TouchableOpacity key={wordBook.wordbook_id} style={styles.levelCard}>
@@ -139,7 +142,6 @@ export default function UserScreen() {
         </View>
         <ThemedText className="text-lg text-[#ff6b6b] font-bold mb-2">문법</ThemedText>
         <View className="flex-row w-full h-[100px] mb-4">
-          {/* 가로 스크롤 레벨 카드 목록 */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
             {grammarBooks.map((grammarBook) => (
               <TouchableOpacity key={grammarBook.grammarbook_id} style={styles.levelCard}>
@@ -149,9 +151,6 @@ export default function UserScreen() {
           </ScrollView>
         </View>
       </View>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <ThemedText style={styles.logoutText}>Logout</ThemedText>
-      </TouchableOpacity>
     </View>
   );
 }
