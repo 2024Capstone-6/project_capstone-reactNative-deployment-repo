@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ENV } from '@/config/env';
 
 import AIChat from '@/components/conversation/AIChat';
@@ -18,6 +18,8 @@ interface ChatMessage {
 export default function ChatScreen() {
   const { situationId, situationName } = useLocalSearchParams();
   const router = useRouter();
+  const scrollViewRef = useRef<ScrollView>(null);
+
   // 학습 모드(true)와 실전 회화 모드(false)를 구분하는 상태
   const [isPracticeMode, setIsPracticeMode] = useState(true);
   // 채팅 메시지 목록을 관리하는 상태
@@ -29,8 +31,17 @@ export default function ChatScreen() {
   useEffect(() => {
     if (isPracticeMode) {
       fetchInitialQuestion();
+    } else {
+      setMessages([]); // 실전 회화 모드로 전환 시 메시지 초기화
     }
   }, [isPracticeMode]);
+
+  // 자동 스크롤
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
 
   // 초기 질문을 서버에서 가져오는 함수
   const fetchInitialQuestion = async () => {
@@ -57,7 +68,6 @@ export default function ChatScreen() {
   // 학습 모드와 실전 회화 모드를 전환하는 함수
   const toggleMode = () => {
     setIsPracticeMode(!isPracticeMode);
-    setMessages([]); // 모드 전환 시 메시지 초기화
   };
 
   return (
@@ -78,12 +88,17 @@ export default function ChatScreen() {
       </View>
 
       {/* 채팅 메시지 목록 */}
-      <ScrollView className="flex-1 mt-6" contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        className="flex-1 mt-6"
+        contentContainerStyle={{ paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
         {messages.map((message, index) => (
           <View key={index} className={`flex-row items-start mb-4 ${!message.isAI ? 'justify-end' : ''}`}>
             {message.isAI && <Ionicons name="sparkles-outline" size={22} color="#ff6b6b" style={styles.icon} />}
-            <View style={styles.chat}>
-              <Text>{message.text}</Text>
+            <View style={[styles.chat, !message.isAI && styles.userChat]}>
+              <Text style={[!message.isAI && styles.userText]}>{message.text}</Text>
               {message.jpText && <Text className="text-gray-500 mt-1">{message.jpText}</Text>}
             </View>
             {!message.isAI && <Ionicons name="person" size={22} color="#ff6b6b" style={styles.icon} />}
@@ -92,8 +107,12 @@ export default function ChatScreen() {
       </ScrollView>
 
       {/* 하단 채팅 입력 영역: 모드에 따라 다른 컴포넌트 표시 */}
-      <View className="flex-1">
-        {isPracticeMode ? <SituationChat messages={messages} setMessages={setMessages} /> : <AIChat />}
+      <View className="flex-1 justify-end">
+        {isPracticeMode ? (
+          <SituationChat messages={messages} setMessages={setMessages} />
+        ) : (
+          <AIChat situationName={situationName as string} messages={messages} setMessages={setMessages} />
+        )}
       </View>
     </View>
   );
@@ -113,5 +132,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#ff6b6b',
+  },
+  userChat: {
+    backgroundColor: '#ff6b6b',
+    borderColor: '#ff6b6b',
+  },
+  userText: {
+    color: 'white',
   },
 });
