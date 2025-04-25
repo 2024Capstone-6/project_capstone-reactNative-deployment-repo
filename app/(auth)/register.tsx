@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -79,10 +79,26 @@ export default function Register() {
       }
 
       // 회원가입 성공 처리
-      await AsyncStorage.setItem('userToken', result.data?.accessToken || '');
-      await AsyncStorage.setItem('userId', result.data?.userId || '');
+      if (result.data) {
+        await AsyncStorage.setItem('userToken', result.data.accessToken || '');
+        await AsyncStorage.setItem('userId', result.data.userId || '');
 
-      navigateToHome();
+        // 성공 메시지 표시
+        Alert.alert('회원가입 성공', '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigateToHome(),
+          },
+        ]);
+      } else {
+        // 서버에서 응답이 없지만 에러도 없는 경우 (회원가입 성공)
+        Alert.alert('회원가입 성공', '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigateToHome(),
+          },
+        ]);
+      }
     } catch (err) {
       console.error('Registration error:', err);
       setError(err instanceof Error ? err.message : ERROR_MESSAGES.REGISTER.REGISTER_FAILED);
