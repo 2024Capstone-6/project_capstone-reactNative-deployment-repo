@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Platform } from 'react-native';
 
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
 
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -156,6 +154,8 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(conversation)" options={{ headerShown: false }} />
             <Stack.Screen name="(settings)/settings" options={{ headerShown: false }} />
+            <Stack.Screen name="(quiz)/single" options={{ headerShown: false }} />
+            <Stack.Screen name="(quiz)/multi" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
         </AuthProvider>
