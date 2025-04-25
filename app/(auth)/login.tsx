@@ -29,7 +29,7 @@ export default function Login() {
       }
 
       // 서버에 로그인 요청
-      const response = await fetch(`${ENV.API_URL}/auth/signin`, {
+      const response = await fetch(`${ENV.API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
