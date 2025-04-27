@@ -25,10 +25,10 @@ export function QuizCard({ question, options, onAnswer, timeLimit = 10 }: QuizCa
     } else if (timeLeft === 0 && !isCorrect) {
       setShowAnswer(true);
       setMessage('시간이 종료되었습니다!');
-      // 2초 후에 게임 선택 화면으로 이동
+      // 2초 후에 다음 문제로 넘어가기
       setTimeout(() => {
-        onAnswer(''); // 빈 답을 전달하여 게임 선택 화면으로 이동
-      }, 2000);
+        onAnswer(''); // 빈 답을 전달하여 다음 문제로 넘어가도록 함
+      }, 3000);
     }
   }, [timeLeft, isCorrect, showAnswer]);
 
@@ -39,10 +39,6 @@ export function QuizCard({ question, options, onAnswer, timeLimit = 10 }: QuizCa
 
     if (correct) {
       setMessage('정답입니다!');
-      // 1초 후에 게임 선택 화면으로 이동
-      setTimeout(() => {
-        onAnswer(''); // 빈 답을 전달하여 게임 선택 화면으로 이동
-      }, 1000);
     } else {
       setMessage('틀렸습니다. 다시 선택해주세요.');
       setTimeout(() => {
