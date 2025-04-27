@@ -44,7 +44,8 @@ export default function SingleGameScreen() {
   const handleAnswer = (selectedAnswer: string) => {
     if (!wordData) return false;
 
-    const isCorrect = selectedAnswer === wordData.word_furigana;
+    const answer = wordData.word_furigana && wordData.word_furigana.length > 0 ? wordData.word_furigana : wordData.word;
+    const isCorrect = selectedAnswer === answer;
     if (isCorrect) {
       setTimeout(() => {
         if (currentQuestion < TOTAL_QUESTIONS) {
