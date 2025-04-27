@@ -13,7 +13,8 @@ export const registerUser = async (
       email,
       password,
     });
-    return { data: response };
+
+    return { data: response || {} };
   } catch (error) {
     console.error('Registration error:', error);
     return {

@@ -29,7 +29,7 @@ export default function Login() {
       }
 
       // 서버에 로그인 요청
-      const response = await fetch(`${ENV.API_URL}/auth/signin`, {
+      const response = await fetch(`${ENV.API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,13 +101,25 @@ export default function Login() {
         <ThemedText type="default" className="mt-2 p-1">
           Password
         </ThemedText>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholder="비밀번호를 입력하세요"
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={[styles.input, { width: '100%' }]}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            placeholder="비밀번호를 입력하세요"
+            autoCapitalize="none"
+            autoComplete="password"
+            textContentType="password"
+          />
+          <TouchableOpacity
+            className=" justify-center items-center"
+            style={styles.showPasswordButton}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <Text>{showPassword ? '🙄' : '🫣'}</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* 로그인 버튼 */}
         <TouchableOpacity className="bg-[#ff6b6b] p-2 rounded-lg mt-2.5" onPress={handleLogin}>
@@ -156,5 +168,19 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     marginBottom: 10,
+  },
+  passwordContainer: {
+    width: '100%',
+    position: 'relative',
+  },
+  showPasswordButton: {
+    position: 'absolute',
+    right: 10,
+    top: '50%',
+    transform: [{ translateY: -12 }],
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
   },
 });

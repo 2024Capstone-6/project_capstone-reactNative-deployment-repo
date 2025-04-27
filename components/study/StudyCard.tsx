@@ -47,12 +47,6 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) =
     }
   };
 
-  const handleRetry = () => {
-    // 한번 더 학습 로직 구현
-    console.log('한번 더 학습');
-    setCurrentIndex(0);
-  };
-
   // 데이터가 없는 경우 처리
   if (!items || items.length === 0) {
     return (
@@ -110,7 +104,6 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) =
             borderWidth: 1.5,
             marginRight: 10,
           }}
-          onPress={handleRetry}
         >
           <Text style={{ color: 'black' }}>한번 더</Text>
         </TouchableOpacity>
