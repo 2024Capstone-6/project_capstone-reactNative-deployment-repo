@@ -40,7 +40,7 @@ export const WordContent: React.FC<WordContentProps> = ({ word }) => {
         </Pressable>
       </View>
       <View className="flex-1 items-center justify-center">
-        <Text className="text-pretty text-5xl font-bold mb-1" style={{ color: Colors.tint }}>
+        <Text className="text-pretty text-4xl font-bold mb-1" style={{ color: Colors.tint }}>
           {word.word}
         </Text>
         <Text className="text-lg text-gray-500 mb-4">{word.word_furigana}</Text>

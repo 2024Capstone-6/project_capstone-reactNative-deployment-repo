@@ -109,15 +109,15 @@ export default function AIChat({ situationName, setMessages }: AIChatProps) {
 
   return (
     <View className="w-full h-[35%] min-h-[100px] max-h-[250px] mb-20 bg-white rounded-lg border-2 border-[#ff6b6b] p-4">
-      <TextInput
-        className="w-full h-full items-start justify-start"
-        multiline
-        value={inputText}
-        onChangeText={setInputText}
-        placeholder="메시지를 입력하세요..."
-      />
-      <View className="flex-1 items-end justify-end">
-        <View className="flex-row items-center space-x-4">
+      <View className="flex-1 p-2">
+        <TextInput
+          className="w-full h-[80%] items-start justify-start"
+          multiline
+          value={inputText}
+          onChangeText={setInputText}
+          placeholder="메시지를 입력하세요..."
+        />
+        <View className="flex-row items-center justify-end space-x-4 mt-2">
           <TouchableOpacity onPress={handleFeedback}>
             <Text className="text-sm text-[#ff6b6b] font-semibold border-2 border-[#ff6b6b] rounded-md px-2 py-1">
               피드백

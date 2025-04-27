@@ -82,11 +82,11 @@ export function QuizCard({ question, options, onAnswer, timeLimit = 10 }: QuizCa
       )}
 
       {/* 선택지 - 2x2 그리드 */}
-      <View className="flex-row flex-wrap justify-between gap-y-4">
+      <View className="flex-row flex-wrap h-[40%] justify-between gap-y-2">
         {options.map((option, index) => (
           <TouchableOpacity
             key={index}
-            className={`w-[48%] h-[80%] justify-center items-center bg-white p-4 rounded-lg border ${
+            className={`w-[48%] h-[45%] justify-center items-center bg-white p-2 rounded-lg border ${
               selectedOption === index
                 ? isCorrect
                   ? 'border-green-500 bg-green-50'
@@ -98,7 +98,7 @@ export function QuizCard({ question, options, onAnswer, timeLimit = 10 }: QuizCa
             onPress={() => handleOptionPress(index)}
             disabled={isCorrect || showAnswer}
           >
-            <ThemedText className="text-lg text-center">{option}</ThemedText>
+            <ThemedText className="text-base text-center">{option}</ThemedText>
           </TouchableOpacity>
         ))}
       </View>

@@ -81,7 +81,7 @@ export const GrammarContent: React.FC<GrammarContentProps> = ({ grammar }) => {
         <View className="flex-1 relative">
           <Animated.View style={[styles.cardFace, frontAnimatedStyle]}>
             <View className="flex-1 items-center justify-center">
-              <Text className="text-pretty text-5xl font-bold mb-1" style={{ color: Colors.tint }}>
+              <Text className="text-pretty text-4xl font-bold mb-1" style={{ color: Colors.tint }}>
                 {grammar.grammar}
               </Text>
               <Text className="text-lg text-gray-500 mb-4">{grammar.grammar_furigana}</Text>

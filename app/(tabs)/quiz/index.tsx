@@ -18,7 +18,7 @@ export default function QuizScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          className="p-4 rounded-lg bg-white border-2 border-[#ff6b6b] items-center"
+          className="p-4 rounded-lg bg-white border-2 border-[#ff6b6b] items-center mt-2"
           onPress={() => router.push('/(quiz)/multi')}
         >
           <ThemedText className="text-[#ff6b6b] text-lg">멀티 게임</ThemedText>
