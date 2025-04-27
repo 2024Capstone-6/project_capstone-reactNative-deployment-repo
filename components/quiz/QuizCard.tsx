@@ -1,19 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 
 interface QuizCardProps {
   question: string;
   options: string[];
-  currentQuestion: number;
-  totalQuestions: number;
   onAnswer: (selectedAnswer: string) => boolean;
+  timeLimit?: number;
 }
 
-export function QuizCard({ question, options, currentQuestion, totalQuestions, onAnswer }: QuizCardProps) {
+export function QuizCard({ question, options, onAnswer, timeLimit = 10 }: QuizCardProps) {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [message, setMessage] = useState<string>('');
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
+  const [timeLeft, setTimeLeft] = useState<number>(timeLimit);
+  const [showAnswer, setShowAnswer] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (timeLeft > 0 && !isCorrect && !showAnswer) {
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    } else if (timeLeft === 0 && !isCorrect) {
+      setShowAnswer(true);
+      setMessage('시간이 종료되었습니다!');
+      // 2초 후에 게임 선택 화면으로 이동
+      setTimeout(() => {
+        onAnswer(''); // 빈 답을 전달하여 게임 선택 화면으로 이동
+      }, 2000);
+    }
+  }, [timeLeft, isCorrect, showAnswer]);
 
   const handleOptionPress = (index: number) => {
     const correct = onAnswer(options[index]);
@@ -22,9 +39,12 @@ export function QuizCard({ question, options, currentQuestion, totalQuestions, o
 
     if (correct) {
       setMessage('정답입니다!');
+      // 1초 후에 게임 선택 화면으로 이동
+      setTimeout(() => {
+        onAnswer(''); // 빈 답을 전달하여 게임 선택 화면으로 이동
+      }, 1000);
     } else {
       setMessage('틀렸습니다. 다시 선택해주세요.');
-      // 1초 후에 선택 초기화
       setTimeout(() => {
         setSelectedOption(null);
         setMessage('');
@@ -37,16 +57,18 @@ export function QuizCard({ question, options, currentQuestion, totalQuestions, o
     <View className="flex-1 w-full">
       {/* 문제 카드 */}
       <View className="h-[30%] bg-white rounded-lg p-6 shadow-sm border border-[#ff6b6b] mb-8">
-        {/* 상단 진행바 */}
-        <View className="flex-row items-center mb-6">
-          <ThemedText className="text-lg">{currentQuestion}</ThemedText>
-          <View className="flex-1 h-2 bg-gray-200 mx-2 rounded-full">
+        {/* 상단 진행바와 타이머 */}
+
+        <View className="mb-6">
+          <View className="w-full h-2 bg-gray-200 rounded-full">
             <View
-              className="h-2 bg-[#ff6b6b] rounded-full"
-              style={{ width: `${(currentQuestion / totalQuestions) * 100}%` }}
+              className="h-2 rounded-full"
+              style={{
+                width: `${(timeLeft / timeLimit) * 100}%`,
+                backgroundColor: timeLeft <= 5 ? '#ef4444' : '#ff6b6b',
+              }}
             />
           </View>
-          <ThemedText className="text-lg">{totalQuestions}</ThemedText>
         </View>
         {/* 문제 텍스트를 감싸는 컨테이너 */}
         <View className="flex-1 justify-center">
@@ -73,10 +95,12 @@ export function QuizCard({ question, options, currentQuestion, totalQuestions, o
                 ? isCorrect
                   ? 'border-green-500 bg-green-50'
                   : 'border-red-500 bg-red-50'
-                : 'border-[#ff6b6b]'
+                : showAnswer && onAnswer(option)
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-[#ff6b6b]'
             }`}
             onPress={() => handleOptionPress(index)}
-            disabled={isCorrect}
+            disabled={isCorrect || showAnswer}
           >
             <ThemedText className="text-lg text-center">{option}</ThemedText>
           </TouchableOpacity>
