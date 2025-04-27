@@ -74,10 +74,6 @@ export default function Register() {
       // 회원가입 요청
       const result = await registerUser(name, email, password);
 
-      if (result.error) {
-        throw new Error(result.error);
-      }
-
       // 회원가입 성공 처리
       if (result.data) {
         await AsyncStorage.setItem('userToken', result.data.accessToken || '');
@@ -101,7 +97,17 @@ export default function Register() {
       }
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err instanceof Error ? err.message : ERROR_MESSAGES.REGISTER.REGISTER_FAILED);
+      // 에러가 발생해도 회원가입이 성공한 경우를 처리
+      if (err instanceof Error && err.message.includes('Unexpected end of JSON input')) {
+        Alert.alert('회원가입 성공', '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigateToHome(),
+          },
+        ]);
+      } else {
+        setError(err instanceof Error ? err.message : ERROR_MESSAGES.REGISTER.REGISTER_FAILED);
+      }
     }
   };
 

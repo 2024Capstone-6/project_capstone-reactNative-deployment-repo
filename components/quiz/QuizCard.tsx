@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, Text } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 
 interface QuizCardProps {
@@ -68,7 +68,7 @@ export function QuizCard({ question, options, onAnswer, timeLimit = 10 }: QuizCa
         </View>
         {/* 문제 텍스트를 감싸는 컨테이너 */}
         <View className="flex-1 justify-center">
-          <ThemedText className="text-2xl text-center text-[#ff6b6b]">{question}</ThemedText>
+          <Text className="text-4xl font-bold text-center text-[#ff6b6b]">{question}</Text>
         </View>
       </View>
 
