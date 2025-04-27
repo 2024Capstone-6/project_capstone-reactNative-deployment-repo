@@ -27,11 +27,15 @@ export default function SingleGameScreen() {
     try {
       setLoading(true);
       const response = await fetch(`${ENV.API_URL}/api/rooms/solo?level=${level}`);
+      if (!response.ok) {
+        throw new Error('단어를 불러오는데 실패했습니다');
+      }
       const data = await response.json();
-      console.log('받은 데이터:', data);
       setWordData(data);
     } catch (error) {
       console.error('단어 불러오기 실패:', error);
+      router.back();
+      alert('데이터가 존재하지 않습니다.');
     } finally {
       setLoading(false);
     }
@@ -44,8 +48,9 @@ export default function SingleGameScreen() {
   const handleAnswer = (selectedAnswer: string) => {
     if (!wordData) return false;
 
-    const answer = wordData.word_furigana && wordData.word_furigana.length > 0 ? wordData.word_furigana : wordData.word;
+    const answer = wordData.word_furigana || wordData.word;
     const isCorrect = selectedAnswer === answer;
+
     if (isCorrect) {
       setTimeout(() => {
         if (currentQuestion < TOTAL_QUESTIONS) {
@@ -63,10 +68,18 @@ export default function SingleGameScreen() {
     router.back();
   };
 
-  if (loading || !wordData) {
+  if (loading) {
     return (
       <View className="flex-1 h-full m-[5%] p-4 top-20 justify-center items-center">
         <ThemedText>로딩중...</ThemedText>
+      </View>
+    );
+  }
+
+  if (!wordData) {
+    return (
+      <View className="flex-1 h-full m-[5%] p-4 top-20 justify-center items-center">
+        <ThemedText>단어를 불러오는데 실패했습니다</ThemedText>
       </View>
     );
   }
@@ -81,7 +94,6 @@ export default function SingleGameScreen() {
 
   return (
     <View className="flex-1 h-full m-[5%] p-4 top-20">
-      {/* 상단 헤더: 뒤로가기, 제목 */}
       <View className="flex-row items-center mb-6">
         <Ionicons
           name="arrow-back-outline"
