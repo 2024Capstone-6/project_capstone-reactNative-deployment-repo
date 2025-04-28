@@ -7,7 +7,7 @@ import { Colors } from '../../constants/Colors';
 import { ERROR_MESSAGES } from '../../constants/ErrorMessages';
 import { validateEmail, validatePassword, validatePasswordMatch } from '../../utils/validation';
 import { registerUser } from '../../utils/api';
-import { navigateToHome } from '../../utils/navigation';
+import { navigateToLogin } from '../../utils/navigation';
 
 export default function Register() {
   const router = useRouter();
@@ -83,7 +83,7 @@ export default function Register() {
         Alert.alert('회원가입 성공', '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.', [
           {
             text: '확인',
-            onPress: () => navigateToHome(),
+            onPress: () => navigateToLogin(),
           },
         ]);
       } else {
@@ -91,7 +91,7 @@ export default function Register() {
         Alert.alert('회원가입 성공', '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.', [
           {
             text: '확인',
-            onPress: () => navigateToHome(),
+            onPress: () => navigateToLogin(),
           },
         ]);
       }
@@ -99,10 +99,11 @@ export default function Register() {
       console.error('Registration error:', err);
       // 에러가 발생해도 회원가입이 성공한 경우를 처리
       if (err instanceof Error && err.message.includes('Unexpected end of JSON input')) {
+        console.log('Registration process completed');
         Alert.alert('회원가입 성공', '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.', [
           {
             text: '확인',
-            onPress: () => navigateToHome(),
+            onPress: () => navigateToLogin(),
           },
         ]);
       } else {
