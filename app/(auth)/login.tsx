@@ -39,16 +39,12 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
-      // 로그인 실패 시 에러 처리
       if (!response.ok) {
-        throw new Error(
-          data.message === 'Invalid credentials'
-            ? ERROR_MESSAGES.LOGIN.INVALID_CREDENTIALS
-            : data.message || ERROR_MESSAGES.LOGIN.LOGIN_FAILED
-        );
+        const errorData = await response.json().catch(() => ({ message: '서버 연결에 실패했습니다.' }));
+        throw new Error(errorData.message || ERROR_MESSAGES.LOGIN.LOGIN_FAILED);
       }
+
+      const data = await response.json();
 
       // 토큰 검증
       if (!data.accessToken) {
