@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '../../components/ThemedText';
@@ -9,6 +9,7 @@ import { useAuth } from '../../contexts/AuthContext'; // 전역 인증 상태 �
 import { ENV } from '../../config/env'; // 환경 변수 설정
 import { ERROR_MESSAGES } from '../../constants/ErrorMessages';
 import { navigateToHome } from '../../utils/navigation';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Login() {
   const router = useRouter();
@@ -62,6 +63,23 @@ export default function Login() {
       navigateToHome();
     } catch (err) {
       console.error('Login error:', err);
+      setError(err instanceof Error ? err.message : ERROR_MESSAGES.LOGIN.LOGIN_FAILED);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      // 구글 로그인 페이지로 리다이렉트
+      const response = await fetch(`${ENV.API_URL}/auth/google`);
+      if (!response.ok) {
+        throw new Error('구글 로그인 요청에 실패했습니다.');
+      }
+
+      const data = await response.json();
+      // 구글 로그인 페이지로 이동
+      Linking.openURL(data.url);
+    } catch (err) {
+      console.error('Google Login error:', err);
       setError(err instanceof Error ? err.message : ERROR_MESSAGES.LOGIN.LOGIN_FAILED);
     }
   };
@@ -137,9 +155,13 @@ export default function Login() {
           <View className="flex-1 h-[1px] bg-gray-300" />
         </View>
 
-        {/*         <TouchableOpacity className="bg-white p-2.5 rounded-lg mt-2.5" onPress={handleLogin}>
-          <Text className="text-center font-semibold text-base">Google로 시작하기</Text>
-        </TouchableOpacity> */}
+        <TouchableOpacity
+          className="flex-row items-center bg-white p-2.5 rounded-lg mt-2.5"
+          onPress={handleGoogleLogin}
+        >
+          <Ionicons name="logo-google" size={24} />
+          <Text className="text-center ml-2">Google로 시작하기</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

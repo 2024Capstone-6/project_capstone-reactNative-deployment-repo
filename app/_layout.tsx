@@ -12,6 +12,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ENV } from '@/config/env';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useTokenRefresh } from '@/hooks/useTokenRefresh';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 // 타입 정의
 type AuthState = {
@@ -140,6 +141,14 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
+  useEffect(() => {
+    // 구글 로그인 초기화
+    GoogleSignin.configure({
+      webClientId: ENV.GOOGLE_WEB_CLIENT_ID,
+      offlineAccess: true,
+    });
+  }, []);
+
   if (!fontsLoaded) {
     return null;
   }
@@ -149,16 +158,7 @@ export default function RootLayout() {
     <ErrorBoundary>
       <ThemeProvider value={DefaultTheme}>
         <AuthProvider>
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(conversation)" options={{ headerShown: false }} />
-            <Stack.Screen name="(settings)/settings" options={{ headerShown: false }} />
-            <Stack.Screen name="(quiz)/single" options={{ headerShown: false }} />
-            <Stack.Screen name="(quiz)/multi" options={{ headerShown: false }} />
-            <Stack.Screen name="(quiz)/game/single" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
+          <NavigationStack />
         </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>
