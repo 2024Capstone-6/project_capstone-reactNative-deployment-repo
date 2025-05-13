@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -12,6 +11,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ENV } from '@/config/env';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useTokenRefresh } from '@/hooks/useTokenRefresh';
+import { LoadingScreen } from '@/components/LoadingScreen';
 
 // 타입 정의
 type AuthState = {
@@ -109,42 +109,37 @@ const useAuth = () => {
   return authState;
 };
 
-// 네비게이션 스택 컴포넌트
-const NavigationStack = () => {
-  const { isLoading } = useAuth();
-
-  if (isLoading) {
-    return null;
-  }
-
-  return (
-    <Stack>
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(conversation)" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
-  );
-};
-
 // 앱의 루트 레이아웃
 export default function RootLayout() {
-  // 폰트 로드
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    if (fontsLoaded) {
+    async function prepare() {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 3000)); // 최소 2초 동안 스플래시 스크린 표시
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
+
+  useEffect(() => {
+    if (fontsLoaded && isReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, isReady]);
 
-  if (!fontsLoaded) {
-    return null;
+  if (!fontsLoaded || !isReady) {
+    return <LoadingScreen />;
   }
 
-  // 앱의 전체 구조 설정 (인증 컨텍스트 및 테마 제공)
   return (
     <ErrorBoundary>
       <ThemeProvider value={DefaultTheme}>
