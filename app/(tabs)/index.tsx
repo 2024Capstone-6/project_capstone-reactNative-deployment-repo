@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 
 import { TestSection } from '@/components/TestSection';
@@ -48,6 +47,14 @@ const HomeScreen = () => {
             <TestSection title="BJT" levels={TEST_LEVELS.BJT} onLevelSelect={handleLevelSelect} />
           </>
         )}
+        <View className="flex-1 m-4">
+          <TouchableOpacity
+            className="w-full h-[20px] justify-center items-center p-2 bg-[#ff6b6b] rounded-lg"
+            onPress={() => router.push('/존재하지-않는-페이지')}
+          >
+            <Text className="text-white">404 페이지 테스트</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
