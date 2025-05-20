@@ -33,7 +33,7 @@ export default function SingleGameScreen() {
               <TouchableOpacity
                 key={level}
                 className="p-2 rounded-md mb-2 bg-white border border-[#ff6b6b]"
-                onPress={() => router.push(`/(quiz)/game/single?level=${level}`)}
+                onPress={() => router.push(`/(quiz)/game/inSingle?level=${level}`)}
               >
                 <ThemedText className="text-md">{level}</ThemedText>
               </TouchableOpacity>
