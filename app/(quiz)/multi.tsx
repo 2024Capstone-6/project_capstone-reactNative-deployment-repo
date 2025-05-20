@@ -1,23 +1,39 @@
-import React from 'react';
-import { View, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
-import { useNavigation } from '@react-navigation/native';
+import { View, TouchableOpacity, ScrollView } from 'react-native';
+import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { TEST_LEVELS } from '@/constants/TestLevels';
 
-export default function MultiQuizScreen() {
-  const navigation = useNavigation();
+export default function SingleGameScreen() {
+  const handleBack = () => router.back();
 
   return (
-    <View className="flex-1 items-center justify-center bg-[#ff6b6b]">
-      <TouchableOpacity
-        className="w-[60%] h-[40%] bg-white rounded-lg p-4 items-center justify-center border border-[#ff6b6b]"
-        onPress={() => navigation.goBack()}
-      >
-        <Ionicons name="construct-outline" size={100} color="#ff6b6b" />
-        <ThemedText type="title" className="mt-4">
-          개발 예정
+    <View className="flex-1 h-full m-[5%] p-4 top-10">
+      {/* 상단 헤더: 뒤로가기, 제목 */}
+      <View className="flex-row items-center mb-6">
+        <Ionicons
+          name="arrow-back-outline"
+          size={24}
+          className="m-1 text-[#ff6b6b]"
+          accessibilityLabel="arrow-back-outline icon"
+          onPress={handleBack}
+        />
+        <ThemedText type="title" className="mt-1 ml-2">
+          참가할 방을 선택해주세요!
         </ThemedText>
-      </TouchableOpacity>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View className="mb-8">
+          <TouchableOpacity
+            className="flex-row justify-between items-center p-2 rounded-md mb-2 bg-white border border-[#ff6b6b]"
+            onPress={() => router.push(`/(quiz)/game/inMulti`)}
+          >
+            <ThemedText className="text-md">방 이름</ThemedText>
+            <ThemedText className="text-sm text-[#a1a1a1]">1/4</ThemedText>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </View>
   );
 }
