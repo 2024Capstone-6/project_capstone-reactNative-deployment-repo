@@ -177,28 +177,26 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
 
   // 단어장에서 단어 제거
   const removeWordFromBook = async (wordbookId: number) => {
-    if (!wordId) return;
-
     try {
       const headers = await getAuthHeaders();
-
       const response = await fetch(`${ENV.API_URL}/words/books/${wordbookId}/words/${wordId}`, {
         method: 'DELETE',
         headers,
       });
 
-      const success = await handleApiResponse(response, '단어가 단어장에서 제거되었습니다.', '단어 제거');
-
-      if (success) {
-        fetchWordBooks(); // 목록 새로고침
+      if (!response.ok) {
+        throw new Error('단어를 단어장에서 제거하는데 실패했습니다.');
       }
+
+      Alert.alert('성공', '단어가 단어장에서 제거되었습니다.');
+      fetchWordBooks();
     } catch (error) {
-      Alert.alert('오류', '단어 제거 중 오류가 발생했습니다.');
       console.error('단어 제거 오류:', error);
+      Alert.alert('오류', '단어를 단어장에서 제거하는데 실패했습니다.');
     }
   };
 
-  // 단어장 삭제
+  /*   // 단어장 삭제
   const deleteWordBook = async (wordbookId: number) => {
     try {
       const headers = await getAuthHeaders();
@@ -217,7 +215,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
       Alert.alert('오류', '단어장 삭제 중 오류가 발생했습니다.');
       console.error('단어장 삭제 오류:', error);
     }
-  };
+  }; */
 
   // 문법장 생성
   const createGrammarBook = async () => {
@@ -248,7 +246,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
     }
   };
 
-  // 문법장 삭제
+  /*   // 문법장 삭제
   const deleteGrammarBook = async (grammarbookId: number) => {
     try {
       const headers = await getAuthHeaders();
@@ -267,7 +265,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
       Alert.alert('오류', '문법장 삭제 중 오류가 발생했습니다.');
       console.error('문법장 삭제 오류:', error);
     }
-  };
+  }; */
 
   // 문법장에 문법 추가
   const addGrammarToBook = async (grammarbookId: number) => {
@@ -293,6 +291,27 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
     }
   };
 
+  // 문법장에서 문법 제거
+  const removeGrammarFromBook = async (grammarbookId: number) => {
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${ENV.API_URL}/grammars/books/${grammarbookId}/grammars/${grammarId}`, {
+        method: 'DELETE',
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error('문법을 문법장에서 제거하는데 실패했습니다.');
+      }
+
+      Alert.alert('성공', '문법이 문법장에서 제거되었습니다.');
+      fetchGrammarBooks();
+    } catch (error) {
+      console.error('문법 제거 오류:', error);
+      Alert.alert('오류', '문법을 문법장에서 제거하는데 실패했습니다.');
+    }
+  };
+
   // 단어장 항목 렌더링 컴포넌트
   const renderWordBookItem = ({ item }: { item: WordBook }) => (
     <View className="p-3 border-b border-gray-200">
@@ -309,8 +328,11 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
             <Text className="text-white text-sm">추가</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity className="px-3 py-1 bg-gray-200 rounded-lg" onPress={() => deleteWordBook(item.wordbook_id)}>
-          <Text className="text-sm">삭제</Text>
+        <TouchableOpacity
+          className="px-3 py-1 bg-gray-200 rounded-lg"
+          onPress={() => removeWordFromBook(item.wordbook_id)}
+        >
+          <Text className="text-sm">제거</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -349,13 +371,23 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
   // 단어장 목록 컴포넌트
   const renderWordBookList = () => (
     <>
-      <TouchableOpacity
-        className="flex-row items-center border-2 border-[#ff6b6b] rounded-xl p-1 mb-4"
-        onPress={() => setShowCreateForm(true)}
-      >
-        <Ionicons name="add-circle-outline" size={24} color={Colors.tint} />
-        <Text className="ml-2 text-[#ff6b6b]">새로운 폴더 생성하기</Text>
-      </TouchableOpacity>
+      <View className="flex-row items-center justify-center">
+        <TouchableOpacity
+          className="flex-row items-center justify-center w-[70%] bg-[#ff6b6b] border-2 border-[#ff6b6b] rounded-xl px-2 py-1 mb-2 mr-2"
+          onPress={() => setShowCreateForm(true)}
+        >
+          <Ionicons name="add-circle-outline" size={24} color="white" />
+          <Text className="ml-2 text-white">새로운 폴더 생성하기</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onClose}
+          className="flex-row items-center justify-center w-[30%] border-2 border-[#ff6b6b] rounded-xl px-2 py-1 mb-2"
+        >
+          <Ionicons name="trash-outline" size={24} color={Colors.tint} />
+          <Text className="ml-2 text-[#ff6b6b]">삭제</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList data={wordBooks} keyExtractor={(item) => item.wordbook_id.toString()} renderItem={renderWordBookItem} />
     </>
   );
@@ -378,7 +410,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
         )}
         <TouchableOpacity
           className="px-3 py-1 bg-gray-200 rounded-lg"
-          onPress={() => deleteGrammarBook(item.grammarbook_id)}
+          onPress={() => removeGrammarFromBook(item.grammarbook_id)}
         >
           <Text className="text-sm">삭제</Text>
         </TouchableOpacity>
