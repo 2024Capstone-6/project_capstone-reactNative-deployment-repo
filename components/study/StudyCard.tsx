@@ -33,9 +33,10 @@ interface StudyCardProps {
   words: Word[];
   grammars: Grammar[];
   type: '단어' | '문법';
+  onComplete?: () => void;
 }
 
-export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) => {
+export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type, onComplete }) => {
   const { level } = useLocalSearchParams<{ level: string }>();
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -44,6 +45,8 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) =
   const handleNext = () => {
     if (currentIndex < items.length - 1) {
       setCurrentIndex(currentIndex + 1);
+    } else if (onComplete) {
+      onComplete();
     }
   };
 
@@ -119,10 +122,11 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type }) =
             marginRight: 10,
           }}
           onPress={handleNext}
-          disabled={currentIndex === items.length - 1}
         >
           <Ionicons name="arrow-forward-outline" size={18} color="white" className="mr-2" />
-          <Text style={{ color: 'white' }}>다음 {type === '단어' ? '단어' : '문법'}로 넘어가기</Text>
+          <Text style={{ color: 'white' }}>
+            {currentIndex === items.length - 1 ? '학습 완료' : `다음 ${type === '단어' ? '단어' : '문법'}로 넘어가기`}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

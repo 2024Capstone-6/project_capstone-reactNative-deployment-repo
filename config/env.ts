@@ -5,10 +5,6 @@ import Constants from 'expo-constants';
 const getApiUrl = () => {
   const apiUrls = Constants.expoConfig?.extra?.apiUrl;
 
-  console.log('Platform:', Platform.OS);
-  console.log('API URLs:', apiUrls);
-  console.log('Selected URL:', Platform.select(apiUrls));
-
   return Platform.select({
     web: apiUrls?.web || 'http://localhost:4000',
     android: apiUrls?.android || 'http://10.0.2.2:4000',

@@ -152,6 +152,9 @@ export default function RootLayout() {
             <Stack.Screen name="(quiz)/single" options={{ headerShown: false }} />
             <Stack.Screen name="(quiz)/multi" options={{ headerShown: false }} />
             <Stack.Screen name="(quiz)/game/single" options={{ headerShown: false }} />
+            <Stack.Screen name="(user)/grammarbook/[id]" options={{ headerShown: false }} />
+            <Stack.Screen name="(user)/wordbook/[id]" options={{ headerShown: false }} />
+            <Stack.Screen name="(user)/wordbook/word_flash" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
         </AuthProvider>
