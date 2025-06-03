@@ -378,7 +378,14 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
 
   // 문법장 목록 렌더링
   const renderGrammarBookItem = ({ item }: { item: GrammarBook }) => (
-    <View className="p-3 border-b border-gray-200">
+    <TouchableOpacity
+      onPress={() => {
+        router.push(`/(user)/grammarbook/${item.grammarbook_id}`);
+        resetModalState();
+        onClose();
+      }}
+      className="p-3 border-b border-gray-200"
+    >
       <View className="flex-row justify-between items-center">
         <Text>{item.grammarbook_title}</Text>
         <Text className="text-gray-500">{item.grammar_middle?.length || 0}개의 문법</Text>
@@ -387,7 +394,8 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
         {isDeleting ? (
           <TouchableOpacity
             className="px-3 py-1 bg-red-500 rounded-lg"
-            onPress={() => {
+            onPress={(e) => {
+              e.stopPropagation();
               setSelectedItem({ id: item.grammarbook_id, title: item.grammarbook_title, type: 'grammar' });
               setShowDeleteConfirm(true);
             }}
@@ -399,13 +407,19 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
             <View className="flex-row space-x-2">
               <TouchableOpacity
                 className="px-3 py-1 bg-[#ff6b6b] rounded-lg"
-                onPress={() => addGrammarToBook(item.grammarbook_id)}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  addGrammarToBook(item.grammarbook_id);
+                }}
               >
                 <Text className="text-white text-sm">추가</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 className="px-3 py-1 bg-gray-200 rounded-lg"
-                onPress={() => removeGrammarFromBook(item.grammarbook_id)}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  removeGrammarFromBook(item.grammarbook_id);
+                }}
               >
                 <Text className="text-sm">제거</Text>
               </TouchableOpacity>
@@ -413,7 +427,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
           )
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   // 생성 폼 렌더링

@@ -155,6 +155,7 @@ export default function RootLayout() {
             <Stack.Screen name="(user)/grammarbook/[id]" options={{ headerShown: false }} />
             <Stack.Screen name="(user)/wordbook/[id]" options={{ headerShown: false }} />
             <Stack.Screen name="(user)/wordbook/word_flash" options={{ headerShown: false }} />
+            <Stack.Screen name="(user)/grammarbook/grammar_flash" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
         </AuthProvider>
