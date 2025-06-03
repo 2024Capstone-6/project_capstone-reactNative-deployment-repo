@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 import { Colors } from '../../constants/Colors';
 import { ENV } from '../../config/env';
@@ -40,8 +41,8 @@ interface GrammarBook {
 interface BookmarkModalProps {
   isVisible: boolean;
   onClose: () => void;
-  wordId?: number; // 현재 보고 있는 단어의 ID
-  grammarId?: number; // 현재 보고 있는 문법의 ID
+  wordId?: number;
+  grammarId?: number;
 }
 
 export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose, wordId, grammarId }) => {
@@ -56,6 +57,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
   const [selectedItem, setSelectedItem] = useState<{ id: number; title: string; type: 'word' | 'grammar' } | null>(
     null
   );
+  const router = useRouter();
 
   // API 호출을 위한 헤더 생성 함수
   const getAuthHeaders = async (contentType = false) => {
@@ -71,7 +73,6 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
     return headers;
   };
 
-  // API 응답 처리 함수
   const handleApiResponse = async (response: Response, successMessage: string, errorPrefix: string) => {
     if (!response.ok) {
       const errorData = await response.json();
@@ -81,6 +82,14 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
 
     Alert.alert('성공', successMessage);
     return true;
+  };
+
+  const resetModalState = () => {
+    setIsDeleting(false);
+    setShowCreateForm(false);
+    setNewBookTitle('');
+    setShowDeleteConfirm(false);
+    setSelectedItem(null);
   };
 
   // 단어장 목록 조회
@@ -101,32 +110,6 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
     }
   };
 
-  // 문법장 목록 조회
-  const fetchGrammarBooks = async () => {
-    try {
-      const headers = await getAuthHeaders();
-      const response = await fetch(`${ENV.API_URL}/grammars/books`, { headers });
-
-      if (!response.ok) {
-        throw new Error('문법장 목록을 불러오는데 실패했습니다.');
-      }
-
-      const data = await response.json();
-      setGrammarBooks(data);
-    } catch (error) {
-      console.error('문법장 목록 조회 오류:', error);
-      Alert.alert('오류', '문법장 목록을 불러오는데 실패했습니다.');
-    }
-  };
-
-  // 모달이 열릴 때마다 단어장/문법장 목록 조회
-  useEffect(() => {
-    if (isVisible) {
-      fetchWordBooks();
-      fetchGrammarBooks();
-    }
-  }, [isVisible]);
-
   // 단어장 생성
   const createWordBook = async () => {
     if (!newBookTitle.trim()) return;
@@ -146,7 +129,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
       if (success) {
         setShowCreateForm(false);
         setNewBookTitle('');
-        fetchWordBooks(); // 목록 새로고침
+        fetchWordBooks();
       }
     } catch (error) {
       Alert.alert('오류', '단어장 생성 중 오류가 발생했습니다.');
@@ -172,7 +155,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
       const success = await handleApiResponse(response, '단어가 단어장에 추가되었습니다.', '단어 추가');
 
       if (success) {
-        fetchWordBooks(); // 목록 새로고침
+        fetchWordBooks();
       }
     } catch (error) {
       Alert.alert('오류', '단어 추가 중 오류가 발생했습니다.');
@@ -201,24 +184,21 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
     }
   };
 
-  // 단어장 삭제
-  const deleteWordBook = async (wordbookId: number) => {
+  // 문법장 목록 조회
+  const fetchGrammarBooks = async () => {
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`${ENV.API_URL}/words/books/${wordbookId}`, {
-        method: 'DELETE',
-        headers,
-      });
+      const response = await fetch(`${ENV.API_URL}/grammars/books`, { headers });
 
       if (!response.ok) {
-        throw new Error('단어장 삭제에 실패했습니다.');
+        throw new Error('문법장 목록을 불러오는데 실패했습니다.');
       }
 
-      Alert.alert('성공', '단어장이 삭제되었습니다.');
-      fetchWordBooks(); // 목록 새로고침
+      const data = await response.json();
+      setGrammarBooks(data);
     } catch (error) {
-      console.error('단어장 삭제 오류:', error);
-      Alert.alert('오류', '단어장 삭제 중 오류가 발생했습니다.');
+      console.error('문법장 목록 조회 오류:', error);
+      Alert.alert('오류', '문법장 목록을 불러오는데 실패했습니다.');
     }
   };
 
@@ -241,34 +221,13 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
       if (success) {
         setShowCreateForm(false);
         setNewBookTitle('');
-        fetchGrammarBooks(); // 목록 새로고침
+        fetchGrammarBooks();
       }
     } catch (error) {
       Alert.alert('오류', '문법장 생성 중 오류가 발생했습니다.');
       console.error('문법장 생성 오류:', error);
     } finally {
       setIsCreating(false);
-    }
-  };
-
-  // 문법장 삭제
-  const deleteGrammarBook = async (grammarbookId: number) => {
-    try {
-      const headers = await getAuthHeaders();
-      const response = await fetch(`${ENV.API_URL}/grammars/books/${grammarbookId}`, {
-        method: 'DELETE',
-        headers,
-      });
-
-      if (!response.ok) {
-        throw new Error('문법장 삭제에 실패했습니다.');
-      }
-
-      Alert.alert('성공', '문법장이 삭제되었습니다.');
-      fetchGrammarBooks(); // 목록 새로고침
-    } catch (error) {
-      console.error('문법장 삭제 오류:', error);
-      Alert.alert('오류', '문법장 삭제 중 오류가 발생했습니다.');
     }
   };
 
@@ -288,7 +247,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
       const success = await handleApiResponse(response, '문법이 문법장에 추가되었습니다.', '문법 추가');
 
       if (success) {
-        fetchGrammarBooks(); // 목록 새로고침
+        fetchGrammarBooks();
       }
     } catch (error) {
       Alert.alert('오류', '문법 추가 중 오류가 발생했습니다.');
@@ -317,6 +276,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
     }
   };
 
+  // 삭제 확인
   const handleDeleteConfirm = async () => {
     if (!selectedItem) return;
 
@@ -355,17 +315,23 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
     setIsDeleting(false);
   };
 
-  const resetModalState = () => {
-    setIsDeleting(false);
-    setShowCreateForm(false);
-    setNewBookTitle('');
-    setShowDeleteConfirm(false);
-    setSelectedItem(null);
-  };
+  useEffect(() => {
+    if (isVisible) {
+      fetchWordBooks();
+      fetchGrammarBooks();
+    }
+  }, [isVisible]);
 
   // 단어장 항목 렌더링 컴포넌트
   const renderWordBookItem = ({ item }: { item: WordBook }) => (
-    <View className="p-3 border-b border-gray-200">
+    <TouchableOpacity
+      onPress={() => {
+        router.push(`/(user)/wordbook/${item.wordbook_id}`);
+        resetModalState();
+        onClose();
+      }}
+      className="p-3 border-b border-gray-200"
+    >
       <View className="flex-row justify-between items-center">
         <Text>{item.wordbook_title}</Text>
         <Text className="text-gray-500">{item.word_middle?.length || 0}개의 단어</Text>
@@ -374,7 +340,8 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
         {isDeleting ? (
           <TouchableOpacity
             className="px-3 py-1 bg-red-500 rounded-lg"
-            onPress={() => {
+            onPress={(e) => {
+              e.stopPropagation();
               setSelectedItem({ id: item.wordbook_id, title: item.wordbook_title, type: 'word' });
               setShowDeleteConfirm(true);
             }}
@@ -386,13 +353,59 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
             <View className="flex-row space-x-2">
               <TouchableOpacity
                 className="px-3 py-1 bg-[#ff6b6b] rounded-lg"
-                onPress={() => addWordToBook(item.wordbook_id)}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  addWordToBook(item.wordbook_id);
+                }}
               >
                 <Text className="text-white text-sm">추가</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 className="px-3 py-1 bg-gray-200 rounded-lg"
-                onPress={() => removeWordFromBook(item.wordbook_id)}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  removeWordFromBook(item.wordbook_id);
+                }}
+              >
+                <Text className="text-sm">제거</Text>
+              </TouchableOpacity>
+            </View>
+          )
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+
+  // 문법장 목록 렌더링
+  const renderGrammarBookItem = ({ item }: { item: GrammarBook }) => (
+    <View className="p-3 border-b border-gray-200">
+      <View className="flex-row justify-between items-center">
+        <Text>{item.grammarbook_title}</Text>
+        <Text className="text-gray-500">{item.grammar_middle?.length || 0}개의 문법</Text>
+      </View>
+      <View className="flex-row justify-end mt-2 space-x-2">
+        {isDeleting ? (
+          <TouchableOpacity
+            className="px-3 py-1 bg-red-500 rounded-lg"
+            onPress={() => {
+              setSelectedItem({ id: item.grammarbook_id, title: item.grammarbook_title, type: 'grammar' });
+              setShowDeleteConfirm(true);
+            }}
+          >
+            <Text className="text-white text-sm">삭제</Text>
+          </TouchableOpacity>
+        ) : (
+          grammarId && (
+            <View className="flex-row space-x-2">
+              <TouchableOpacity
+                className="px-3 py-1 bg-[#ff6b6b] rounded-lg"
+                onPress={() => addGrammarToBook(item.grammarbook_id)}
+              >
+                <Text className="text-white text-sm">추가</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="px-3 py-1 bg-gray-200 rounded-lg"
+                onPress={() => removeGrammarFromBook(item.grammarbook_id)}
               >
                 <Text className="text-sm">제거</Text>
               </TouchableOpacity>
@@ -403,7 +416,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
     </View>
   );
 
-  // 단어장, 문법장 생성 폼 컴포넌트
+  // 생성 폼 렌더링
   const renderCreateForm = () => (
     <View className="border-2 border-[#ff6b6b] rounded-xl p-3">
       <TextInput
@@ -452,52 +465,11 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
           <Text className="ml-2 text-[#ff6b6b]">{isDeleting ? '취소' : '삭제'}</Text>
         </TouchableOpacity>
       </View>
-
       <FlatList data={wordBooks} keyExtractor={(item) => item.wordbook_id.toString()} renderItem={renderWordBookItem} />
     </>
   );
 
-  // 문법장 항목 렌더링 컴포넌트
-  const renderGrammarBookItem = ({ item }: { item: GrammarBook }) => (
-    <View className="p-3 border-b border-gray-200">
-      <View className="flex-row justify-between items-center">
-        <Text>{item.grammarbook_title}</Text>
-        <Text className="text-gray-500">{item.grammar_middle?.length || 0}개의 문법</Text>
-      </View>
-      <View className="flex-row justify-end mt-2 space-x-2">
-        {isDeleting ? (
-          <TouchableOpacity
-            className="px-3 py-1 bg-red-500 rounded-lg"
-            onPress={() => {
-              setSelectedItem({ id: item.grammarbook_id, title: item.grammarbook_title, type: 'grammar' });
-              setShowDeleteConfirm(true);
-            }}
-          >
-            <Text className="text-white text-sm">삭제</Text>
-          </TouchableOpacity>
-        ) : (
-          grammarId && (
-            <View className="flex-row space-x-2">
-              <TouchableOpacity
-                className="px-3 py-1 bg-[#ff6b6b] rounded-lg"
-                onPress={() => addGrammarToBook(item.grammarbook_id)}
-              >
-                <Text className="text-white text-sm">추가</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className="px-3 py-1 bg-gray-200 rounded-lg"
-                onPress={() => removeGrammarFromBook(item.grammarbook_id)}
-              >
-                <Text className="text-sm">제거</Text>
-              </TouchableOpacity>
-            </View>
-          )
-        )}
-      </View>
-    </View>
-  );
-
-  // 문법장 목록 컴포넌트
+  // 문법장 목록 렌더링
   const renderGrammarBookList = () => (
     <>
       <View className="flex-row items-center justify-center">
@@ -524,29 +496,26 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
     </>
   );
 
-  // 탭 전환 컴포넌트
-  const renderTabs = () => {
-    return (
-      <View className="flex-row mb-4 border-b border-gray-200">
-        <TouchableOpacity
-          className={`flex-1 py-2 ${activeTab === 'word' ? 'border-b-2 border-[#ff6b6b]' : ''}`}
-          onPress={() => setActiveTab('word')}
-        >
-          <Text className={`text-center ${activeTab === 'word' ? 'text-[#ff6b6b] font-bold' : 'text-gray-500'}`}>
-            단어장
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className={`flex-1 py-2 ${activeTab === 'grammar' ? 'border-b-2 border-[#ff6b6b]' : ''}`}
-          onPress={() => setActiveTab('grammar')}
-        >
-          <Text className={`text-center ${activeTab === 'grammar' ? 'text-[#ff6b6b] font-bold' : 'text-gray-500'}`}>
-            문법장
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+  const renderTabs = () => (
+    <View className="flex-row mb-4 border-b border-gray-200">
+      <TouchableOpacity
+        className={`flex-1 py-2 ${activeTab === 'word' ? 'border-b-2 border-[#ff6b6b]' : ''}`}
+        onPress={() => setActiveTab('word')}
+      >
+        <Text className={`text-center ${activeTab === 'word' ? 'text-[#ff6b6b] font-bold' : 'text-gray-500'}`}>
+          단어장
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        className={`flex-1 py-2 ${activeTab === 'grammar' ? 'border-b-2 border-[#ff6b6b]' : ''}`}
+        onPress={() => setActiveTab('grammar')}
+      >
+        <Text className={`text-center ${activeTab === 'grammar' ? 'text-[#ff6b6b] font-bold' : 'text-gray-500'}`}>
+          문법장
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <Modal
