@@ -355,6 +355,14 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
     setIsDeleting(false);
   };
 
+  const resetModalState = () => {
+    setIsDeleting(false);
+    setShowCreateForm(false);
+    setNewBookTitle('');
+    setShowDeleteConfirm(false);
+    setSelectedItem(null);
+  };
+
   // 단어장 항목 렌더링 컴포넌트
   const renderWordBookItem = ({ item }: { item: WordBook }) => (
     <View className="p-3 border-b border-gray-200">
@@ -541,8 +549,21 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
   };
 
   return (
-    <Modal animationType="slide" transparent={true} visible={isVisible} onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={onClose}>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={isVisible}
+      onRequestClose={() => {
+        resetModalState();
+        onClose();
+      }}
+    >
+      <TouchableWithoutFeedback
+        onPress={() => {
+          resetModalState();
+          onClose();
+        }}
+      >
         <View className="flex-1 justify-end bg-black/30">
           <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
             <View className="bg-white h-[45%] rounded-t-xl p-4">
@@ -564,7 +585,10 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isVisible, onClose
         animationType="fade"
         transparent={true}
         visible={showDeleteConfirm}
-        onRequestClose={() => setShowDeleteConfirm(false)}
+        onRequestClose={() => {
+          setShowDeleteConfirm(false);
+          setSelectedItem(null);
+        }}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white w-[80%] rounded-xl p-6">
