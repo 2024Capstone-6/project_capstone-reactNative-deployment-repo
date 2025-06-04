@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TouchableOpacity, Text, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ThemedText } from '../ThemedText';
 import { WordContent } from './WordContent';
@@ -34,19 +35,65 @@ interface StudyCardProps {
   grammars: Grammar[];
   type: '단어' | '문법';
   onComplete?: () => void;
+  bookId?: number;
 }
 
-export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type, onComplete }) => {
+export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type, onComplete, bookId }) => {
   const { level } = useLocalSearchParams<{ level: string }>();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const items = type === '단어' ? words : grammars;
 
-  const handleNext = () => {
-    if (currentIndex < items.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else if (onComplete) {
-      onComplete();
+  // 학습 진행 상황 저장 함수
+  const saveProgress = async (index: number) => {
+    try {
+      const progressKey = `study_progress_${type}_${level}`;
+      await AsyncStorage.setItem(progressKey, index.toString());
+    } catch (error) {
+      console.error('학습 진행 상황 저장 오류:', error);
+    }
+  };
+
+  // 학습 진행 상황 불러오기
+  useEffect(() => {
+    const loadProgress = async () => {
+      try {
+        const progressKey = `study_progress_${type}_${level}`;
+        const savedIndex = await AsyncStorage.getItem(progressKey);
+        if (savedIndex !== null) {
+          const index = parseInt(savedIndex, 10);
+          if (!isNaN(index) && index < items.length) {
+            setCurrentIndex(index);
+          }
+        }
+      } catch (error) {
+        console.error('학습 진행 상황 불러오기 오류:', error);
+      }
+    };
+
+    loadProgress();
+  }, [level, type, items.length]);
+
+  const handleNext = async () => {
+    if (currentIndex === items.length - 1) {
+      if (onComplete) {
+        onComplete();
+      }
+    } else {
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      setIsFlipped(false);
+      await saveProgress(newIndex);
+    }
+  };
+
+  const handlePrev = async () => {
+    if (currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(newIndex);
+      setIsFlipped(false);
+      await saveProgress(newIndex);
     }
   };
 
@@ -95,40 +142,57 @@ export const StudyCard: React.FC<StudyCardProps> = ({ words, grammars, type, onC
       </View>
 
       {/* 버튼 컨테이너 */}
-      <View className="flex-row items-center p-1">
+      <View className="flex-row justify-between items-center p-1">
         <TouchableOpacity
           style={{
-            alignItems: 'center',
+            ...secondaryButtonStyle,
+            width: '25%',
+            marginRight: 5,
+          }}
+          onPress={handlePrev}
+          disabled={currentIndex === 0}
+        >
+          <Text style={{ color: currentIndex === 0 ? '#ccc' : 'black' }}>이전</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={{
+            ...secondaryButtonStyle,
             width: '35%',
-            backgroundColor: 'white',
-            padding: 10,
-            borderRadius: 5,
-            borderColor: '#ff6b6b',
-            borderWidth: 1.5,
-            marginRight: 10,
+            marginRight: 5,
           }}
         >
           <Text style={{ color: 'black' }}>한번 더</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '62%',
-            backgroundColor: '#ff6b6b',
-            padding: 10,
-            borderRadius: 5,
-            marginRight: 10,
+            ...primaryButtonStyle,
+            width: '35%',
           }}
           onPress={handleNext}
         >
-          <Ionicons name="arrow-forward-outline" size={18} color="white" className="mr-2" />
-          <Text style={{ color: 'white' }}>
-            {currentIndex === items.length - 1 ? '학습 완료' : `다음 ${type === '단어' ? '단어' : '문법'}로 넘어가기`}
-          </Text>
+          <Text style={{ color: 'white' }}>{currentIndex === items.length - 1 ? '완료' : '다음'}</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
+};
+
+const buttonStyle = {
+  alignItems: 'center' as const,
+  padding: 10,
+  borderRadius: 5,
+  borderColor: '#ff6b6b',
+  borderWidth: 1.5,
+};
+
+const primaryButtonStyle = {
+  ...buttonStyle,
+  backgroundColor: '#ff6b6b',
+};
+
+const secondaryButtonStyle = {
+  ...buttonStyle,
+  backgroundColor: 'white',
 };
