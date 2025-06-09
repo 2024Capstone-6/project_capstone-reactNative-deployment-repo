@@ -6,10 +6,10 @@ const getApiUrl = () => {
   const apiUrls = Constants.expoConfig?.extra?.apiUrl;
 
   return Platform.select({
-    web: apiUrls?.web || 'http://localhost:4000',
-    android: apiUrls?.android || 'http://10.0.2.2:4000',
-    ios: apiUrls?.ios || 'http://localhost:4000',
-    default: apiUrls?.default || 'http://localhost:4000',
+    web: apiUrls?.web || 'http://52.79.43.250:4000/ ',
+    android: apiUrls?.android || 'http://52.79.43.250:4000',
+    ios: apiUrls?.ios || 'http://52.79.43.250:4000',
+    default: apiUrls?.default || 'http://52.79.43.250:4000',
   });
 };
 
