@@ -3,9 +3,10 @@ import { View, TouchableOpacity, ScrollView, Modal, TextInput } from 'react-nati
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ENV } from '../../config/env';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSocket } from '../../contexts/SocketContext';
+import customFetch from '../../util/custom-fetch';
+import { TEST_LEVELS } from '@/constants/TestLevels';
 
 const MAX_PARTICIPANTS = 8;
 
@@ -28,19 +29,64 @@ interface Message {
 
 export default function MultiGameScreen() {
   const { isSignedIn } = useAuth();
+  const { socket, isConnected } = useSocket();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newRoomName, setNewRoomName] = useState('');
+  const [difficulty, setDifficulty] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<'JLPT' | 'JPT' | 'BJT'>('JLPT');
+
+  // 소켓 연결 및 이벤트 리스너 설정
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    // 실시간 방 목록 업데이트
+    socket.on('roomListUpdate', (updatedRooms: Room[]) => {
+      console.log('방 목록 업데이트:', updatedRooms);
+      // 닫힌 방이나 게임 중인 방은 제외
+      const availableRooms = updatedRooms.filter(
+        (room) => room.status === 'lobby' && room.participants.length < MAX_PARTICIPANTS
+      );
+      setRooms(availableRooms);
+    });
+
+    // 방 참가 성공/실패 처리
+    socket.on('joinRoomSuccess', (room: Room) => {
+      console.log('방 참가 성공:', room);
+    });
+
+    socket.on('joinRoomError', (error: any) => {
+      console.error('방 참가 실패:', error);
+      alert(error?.message || '방 참가에 실패했습니다.');
+    });
+
+    // 에러 핸들링
+    socket.on('error', (error) => {
+      console.error('소켓 에러:', error);
+      alert(error?.message || '에러가 발생했습니다.');
+    });
+
+    return () => {
+      socket.off('roomListUpdate');
+      socket.off('joinRoomSuccess');
+      socket.off('joinRoomError');
+      socket.off('error');
+    };
+  }, [socket, isConnected]);
 
   // 방 목록 조회
   const fetchRooms = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${ENV.API_URL}/api/rooms`);
+      const response = await customFetch('quiz-game/rooms');
       if (!response.ok) throw new Error('방 목록을 불러오는데 실패했습니다');
       const data = await response.json();
-      setRooms(data);
+      // 닫힌 방이나 게임 중인 방은 제외
+      const availableRooms = data.filter(
+        (room: Room) => room.status === 'lobby' && room.participants.length < MAX_PARTICIPANTS
+      );
+      setRooms(availableRooms);
     } catch (error) {
       console.error('방 목록 불러오기 실패:', error);
       alert('방 목록을 불러오는데 실패했습니다.');
@@ -58,20 +104,28 @@ export default function MultiGameScreen() {
         return;
       }
 
-      const token = await AsyncStorage.getItem('userToken');
-      if (!token) {
-        alert('로그인이 필요합니다.');
-        router.push('/login');
+      if (!socket || !isConnected) {
+        alert('소켓 연결이 아직 완료되지 않았습니다.');
         return;
       }
 
-      const response = await fetch(`${ENV.API_URL}/api/rooms`, {
+      if (!newRoomName.trim()) {
+        alert('방 이름을 입력해주세요.');
+        return;
+      }
+
+      if (!difficulty) {
+        alert('난이도를 선택해주세요.');
+        return;
+      }
+
+      const response = await customFetch('quiz-game/rooms', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: newRoomName }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newRoomName.trim(),
+          difficulty,
+        }),
       });
 
       if (!response.ok) {
@@ -80,9 +134,13 @@ export default function MultiGameScreen() {
       }
 
       const newRoom = await response.json();
-      setRooms([...rooms, newRoom]);
+      console.log('방 생성 성공:', newRoom);
+
+      socket.emit('joinRoom', { roomId: newRoom.roomId });
       setIsModalVisible(false);
       setNewRoomName('');
+      setDifficulty('');
+      handleJoinRoom(newRoom.roomId);
     } catch (error) {
       console.error('방 생성 실패:', error);
       alert(error instanceof Error ? error.message : '방 생성에 실패했습니다.');
@@ -91,6 +149,28 @@ export default function MultiGameScreen() {
 
   // 방 참가
   const handleJoinRoom = (roomId: string) => {
+    if (!socket || !isConnected) {
+      alert('소켓 연결이 아직 완료되지 않았습니다.');
+      return;
+    }
+
+    const room = rooms.find((r) => r.roomId === roomId);
+    if (!room) {
+      alert('방을 찾을 수 없습니다.');
+      return;
+    }
+
+    if (room.participants.length >= MAX_PARTICIPANTS) {
+      alert('방이 가득 찼습니다.');
+      return;
+    }
+
+    if (room.status !== 'lobby') {
+      alert('이미 게임이 진행 중인 방입니다.');
+      return;
+    }
+
+    socket.emit('joinRoom', { roomId });
     router.push(`/(quiz)/game/inMulti?roomCode=${roomId}`);
   };
 
@@ -101,9 +181,15 @@ export default function MultiGameScreen() {
   // 방 목록 렌더링
   const renderRoomList = () => {
     if (loading) return <ThemedText>로딩중...</ThemedText>;
-    if (rooms.length === 0) return <ThemedText>현재 생성된 방이 없습니다.</ThemedText>;
 
-    return rooms.map((room) => (
+    // 닫힌 방이나 게임 중인 방은 제외
+    const availableRooms = rooms.filter(
+      (room) => room.status === 'lobby' && room.participants.length < MAX_PARTICIPANTS
+    );
+
+    if (availableRooms.length === 0) return <ThemedText>현재 참가 가능한 방이 없습니다.</ThemedText>;
+
+    return availableRooms.map((room) => (
       <TouchableOpacity
         key={room._id}
         className="flex-row justify-between items-center p-2 rounded-md mb-2 bg-white border border-[#ff6b6b]"
@@ -158,12 +244,49 @@ export default function MultiGameScreen() {
               value={newRoomName}
               onChangeText={setNewRoomName}
             />
+
+            {/* 난이도 선택 UI */}
+            <View className="mb-4">
+              <View className="flex-row justify-between mb-2">
+                {(['JLPT', 'JPT', 'BJT'] as const).map((category) => (
+                  <TouchableOpacity
+                    key={category}
+                    className={`flex-1 mx-1 p-2 rounded-md ${
+                      selectedCategory === category ? 'bg-[#ff6b6b]' : 'bg-gray-200'
+                    }`}
+                    onPress={() => setSelectedCategory(category)}
+                  >
+                    <ThemedText
+                      className={`text-center ${selectedCategory === category ? 'text-white' : 'text-gray-700'}`}
+                    >
+                      {category}
+                    </ThemedText>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <ScrollView className="max-h-32">
+                {TEST_LEVELS[selectedCategory].map((level) => (
+                  <TouchableOpacity
+                    key={level}
+                    className={`p-2 mb-1 rounded-md ${difficulty === level ? 'bg-[#ff6b6b]' : 'bg-gray-100'}`}
+                    onPress={() => setDifficulty(level)}
+                  >
+                    <ThemedText className={`text-center ${difficulty === level ? 'text-white' : 'text-gray-700'}`}>
+                      {level}
+                    </ThemedText>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
             <View className="flex-row justify-end space-x-2">
               <TouchableOpacity
                 className="px-4 py-2 bg-gray-300 rounded-md"
                 onPress={() => {
                   setIsModalVisible(false);
                   setNewRoomName('');
+                  setDifficulty('');
                 }}
               >
                 <ThemedText>취소</ThemedText>
