@@ -136,11 +136,16 @@ export default function MultiGameScreen() {
       const newRoom = await response.json();
       console.log('방 생성 성공:', newRoom);
 
+      // 방 생성 후 자동으로 해당 방에 참가
       socket.emit('joinRoom', { roomId: newRoom.roomId });
+
+      // 모달 닫고 입력 필드 초기화
       setIsModalVisible(false);
       setNewRoomName('');
       setDifficulty('');
-      handleJoinRoom(newRoom.roomId);
+
+      // 방 참가 후 게임 화면으로 이동
+      router.push(`/(quiz)/game/inMulti?roomCode=${newRoom.roomId}`);
     } catch (error) {
       console.error('방 생성 실패:', error);
       alert(error instanceof Error ? error.message : '방 생성에 실패했습니다.');
@@ -225,7 +230,7 @@ export default function MultiGameScreen() {
 
       {/* 방 생성 버튼 */}
       <TouchableOpacity
-        className="justify-center items-center w-full mb-8 p-2 bg-[#ff6b6b] rounded-sm"
+        className="justify-center items-center w-full mb-12 p-2 bg-[#ff6b6b] rounded-sm"
         onPress={() => setIsModalVisible(true)}
       >
         <ThemedText className="text-md text-white">방 생성</ThemedText>
