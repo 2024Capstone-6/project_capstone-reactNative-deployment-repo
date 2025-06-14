@@ -35,8 +35,6 @@ export default function SingleGameScreen() {
         throw new Error(data.error);
       }
       setWordData(data);
-
-      console.log('단어 불러오기 성공:', data);
     } catch (error) {
       console.error('단어 불러오기 실패:', error);
       router.back();

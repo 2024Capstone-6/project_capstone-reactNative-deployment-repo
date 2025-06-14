@@ -143,8 +143,8 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <SocketProvider>
+      <SocketProvider>
+        <AuthProvider>
           <ThemeProvider value={DefaultTheme}>
             <Stack>
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
@@ -158,8 +158,8 @@ export default function RootLayout() {
               <Stack.Screen name="+not-found" />
             </Stack>
           </ThemeProvider>
-        </SocketProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </SocketProvider>
     </ErrorBoundary>
   );
 }
