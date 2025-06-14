@@ -40,6 +40,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const socketInstance = io(ENV.SOCKET_URL, {
         auth: { token },
         transports: ['websocket'],
+        secure: true,
+        rejectUnauthorized: false,
       });
 
       socketInstance.on('connect', () => {
