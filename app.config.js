@@ -17,7 +17,7 @@ export default {
         foregroundImage: './assets/images/adaptive-icon.png',
         backgroundColor: '#f5f5f5',
       },
-      package: 'com.dlatth.nihonclover',
+      package: 'com.team6.nihonclover',
     },
     plugins: ['expo-router'],
     newArchEnabled: true,

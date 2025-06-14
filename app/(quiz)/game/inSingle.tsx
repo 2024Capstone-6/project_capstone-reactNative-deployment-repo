@@ -4,7 +4,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { QuizCard } from '@/components/quiz/QuizCard';
 import { useEffect, useState } from 'react';
-import { ENV } from '../../../config/env';
+import customFetch from '../../../util/custom-fetch';
 
 interface WordData {
   word_id: number;
@@ -26,12 +26,17 @@ export default function SingleGameScreen() {
   const fetchNewWord = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${ENV.API_URL}/api/rooms/solo?level=${level}`);
+      const response = await customFetch(`quiz-game/solo?level=${level}`);
       if (!response.ok) {
         throw new Error('단어를 불러오는데 실패했습니다');
       }
       const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
       setWordData(data);
+
+      console.log('단어 불러오기 성공:', data);
     } catch (error) {
       console.error('단어 불러오기 실패:', error);
       router.back();
@@ -48,7 +53,7 @@ export default function SingleGameScreen() {
   const handleAnswer = (selectedAnswer: string) => {
     if (!wordData) return false;
 
-    const answer = wordData.word_furigana || wordData.word;
+    const answer = wordData.word;
     const isCorrect = selectedAnswer === answer;
 
     if (isCorrect) {
@@ -57,15 +62,11 @@ export default function SingleGameScreen() {
           setCurrentQuestion((prev) => prev + 1);
           fetchNewWord();
         } else {
-          router.push(`/quiz/result?level=${level}`);
+          router.push(`/(quiz)/result?level=${level}`);
         }
       }, 1000);
     }
     return isCorrect;
-  };
-
-  const handleBack = () => {
-    router.back();
   };
 
   if (loading) {
@@ -100,7 +101,7 @@ export default function SingleGameScreen() {
           size={24}
           className="m-1 text-[#ff6b6b]"
           accessibilityLabel="arrow-back-outline icon"
-          onPress={handleBack}
+          onPress={() => router.push('/(quiz)/single')}
         />
         <ThemedText type="title" className="mt-1 ml-2">
           {level} 레벨 퀴즈

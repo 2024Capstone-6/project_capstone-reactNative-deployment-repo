@@ -10,10 +10,10 @@ const getApiUrl = () => {
   console.log('Selected URL:', Platform.select(apiUrls));
 
   return Platform.select({
-    web: apiUrls?.web || 'http://localhost:4000',
-    android: apiUrls?.android || 'http://10.0.2.2:4000',
-    ios: apiUrls?.ios || 'http://localhost:4000',
-    default: apiUrls?.default || 'http://localhost:4000',
+    web: apiUrls?.web || 'http://localhost:4000/api',
+    android: apiUrls?.android || 'http://10.0.2.2:4000/api',
+    ios: apiUrls?.ios || 'http://localhost:4000/api',
+    default: apiUrls?.default || 'http://localhost:4000/api',
   });
 };
 
