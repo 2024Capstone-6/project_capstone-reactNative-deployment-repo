@@ -16,7 +16,7 @@ export default function SingleGameScreen() {
           size={24}
           className="m-1 text-[#ff6b6b]"
           accessibilityLabel="arrow-back-outline icon"
-          onPress={handleBack}
+          onPress={() => router.push('/(quiz)')}
         />
         <ThemedText type="title" className="mt-1 ml-2">
           레벨을 선택하세요!
@@ -33,7 +33,7 @@ export default function SingleGameScreen() {
               <TouchableOpacity
                 key={level}
                 className="p-2 rounded-md mb-2 bg-white border border-[#ff6b6b]"
-                onPress={() => router.push(`/(quiz)/game/single?level=${level}`)}
+                onPress={() => router.push(`/(quiz)/game/inSingle?level=${level}`)}
               >
                 <ThemedText className="text-md">{level}</ThemedText>
               </TouchableOpacity>

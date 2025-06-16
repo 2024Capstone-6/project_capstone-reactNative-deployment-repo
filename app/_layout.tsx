@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import '../global.css';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SocketProvider } from '@/contexts/SocketContext';
 import { ENV } from '@/config/env';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useTokenRefresh } from '@/hooks/useTokenRefresh';
@@ -142,20 +143,24 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider value={DefaultTheme}>
+      <SocketProvider>
         <AuthProvider>
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(conversation)" options={{ headerShown: false }} />
-            <Stack.Screen name="(settings)/settings" options={{ headerShown: false }} />
-            <Stack.Screen name="(quiz)/single" options={{ headerShown: false }} />
-            <Stack.Screen name="(quiz)/multi" options={{ headerShown: false }} />
-            <Stack.Screen name="(quiz)/game/single" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
+          <ThemeProvider value={DefaultTheme}>
+            <Stack>
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(conversation)" options={{ headerShown: false }} />
+              <Stack.Screen name="(settings)/settings" options={{ headerShown: false }} />
+              <Stack.Screen name="(quiz)/single" options={{ headerShown: false }} />
+              <Stack.Screen name="(quiz)/multi" options={{ headerShown: false }} />
+              <Stack.Screen name="(quiz)/game/inSingle" options={{ headerShown: false }} />
+              <Stack.Screen name="(quiz)/game/inMulti" options={{ headerShown: false }} />
+              <Stack.Screen name="(quiz)/game/multiGame" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+          </ThemeProvider>
         </AuthProvider>
-      </ThemeProvider>
+      </SocketProvider>
     </ErrorBoundary>
   );
 }
