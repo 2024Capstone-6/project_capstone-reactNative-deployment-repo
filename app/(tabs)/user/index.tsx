@@ -134,7 +134,16 @@ export default function UserScreen() {
         <View className="flex-row w-full h-[100px] mb-4">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
             {wordBooks.map((wordBook) => (
-              <TouchableOpacity key={wordBook.wordbook_id} style={styles.levelCard}>
+              <TouchableOpacity
+                key={wordBook.wordbook_id}
+                style={styles.levelCard}
+                onPress={() =>
+                  router.push({
+                    pathname: '/(user)/wordbook/[id]',
+                    params: { id: wordBook.wordbook_id, title: wordBook.wordbook_title },
+                  })
+                }
+              >
                 <ThemedText type="default">{wordBook.wordbook_title}</ThemedText>
               </TouchableOpacity>
             ))}
@@ -144,7 +153,16 @@ export default function UserScreen() {
         <View className="flex-row w-full h-[100px] mb-4">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
             {grammarBooks.map((grammarBook) => (
-              <TouchableOpacity key={grammarBook.grammarbook_id} style={styles.levelCard}>
+              <TouchableOpacity
+                key={grammarBook.grammarbook_id}
+                style={styles.levelCard}
+                onPress={() =>
+                  router.push({
+                    pathname: '/(user)/grammarbook/[id]',
+                    params: { id: grammarBook.grammarbook_id, title: grammarBook.grammarbook_title },
+                  })
+                }
+              >
                 <ThemedText type="default">{grammarBook.grammarbook_title}</ThemedText>
               </TouchableOpacity>
             ))}
