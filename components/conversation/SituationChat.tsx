@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ENV } from '@/config/env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // 질문 데이터의 타입 정의
 interface Question {
@@ -35,6 +36,7 @@ interface SituationChatProps {
 
 export default function SituationChat({ messages, setMessages }: SituationChatProps) {
   const { situationId } = useLocalSearchParams();
+  const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [nextQuestion, setNextQuestion] = useState<Question | null>(null);
   // 피드백 모달의 상태를 관리
@@ -86,12 +88,7 @@ export default function SituationChat({ messages, setMessages }: SituationChatPr
           setCurrentQuestion(nextQuestion);
           setOrderIndex((prev) => prev + 1);
           // 다음 질문 데이터 로드
-          fetch(`${ENV.API_URL}/chatbot/questions/${situationId}`)
-            .then((res) => res.json())
-            .then((questions) => {
-              const nextIndex = orderIndex + 2;
-              setNextQuestion(questions?.[nextIndex] || null);
-            });
+          fetchQuestions();
         }
       });
     }, 4000);
@@ -100,7 +97,28 @@ export default function SituationChat({ messages, setMessages }: SituationChatPr
   // 서버에서 질문 데이터를 가져오는 함수
   const fetchQuestions = async () => {
     try {
-      const response = await fetch(`${ENV.API_URL}/chatbot/questions/${situationId}`);
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        router.replace('/login');
+        return;
+      }
+
+      const response = await fetch(`${ENV.API_URL}/chatbot/questions/${situationId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          await AsyncStorage.removeItem('userToken');
+          router.replace('/login');
+          return;
+        }
+        throw new Error('질문을 불러오는데 실패했습니다.');
+      }
+
       const questions = await response.json();
       if (questions?.[0]) {
         setCurrentQuestion(questions[0]);
@@ -110,17 +128,39 @@ export default function SituationChat({ messages, setMessages }: SituationChatPr
       }
     } catch (error) {
       console.error('질문 로딩 실패:', error);
+      setFeedback({
+        message: '질문을 불러오는데 실패했습니다. 다시 시도해주세요.',
+        isCorrect: false,
+      });
     }
   };
 
   // 사용자가 선택지를 선택했을 때 처리하는 함수
   const handleChoiceSelect = async (choice: string) => {
     try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        router.replace('/login');
+        return;
+      }
+
       const response = await fetch(`${ENV.API_URL}/chatbot/check-answer/${situationId}/${orderIndex}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ selectedChoice: choice }),
       });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          await AsyncStorage.removeItem('userToken');
+          router.replace('/login');
+          return;
+        }
+        throw new Error('답변을 확인하는데 실패했습니다.');
+      }
 
       // 선택한 답변이 정답인지 확인
       const selectedChoice = currentQuestion?.choices.find((c) => c.text === choice);
@@ -130,6 +170,10 @@ export default function SituationChat({ messages, setMessages }: SituationChatPr
       showModal(selectedChoice.reason, selectedChoice.is_correct, selectedChoice, currentQuestion, nextQuestion);
     } catch (error) {
       console.error('답변 전송 실패:', error);
+      setFeedback({
+        message: '답변을 확인하는데 실패했습니다. 다시 시도해주세요.',
+        isCorrect: false,
+      });
     }
   };
 

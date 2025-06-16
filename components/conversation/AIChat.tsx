@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Animated, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ENV } from '@/config/env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 interface Message {
   isAI: boolean;
@@ -20,6 +22,7 @@ export default function AIChat({ situationName, setMessages }: AIChatProps) {
   const [inputText, setInputText] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [modalAnimation] = useState(new Animated.Value(Dimensions.get('window').height));
+  const router = useRouter();
 
   const showFeedbackModal = (feedbackText: string) => {
     setFeedback(feedbackText);
@@ -41,10 +44,28 @@ export default function AIChat({ situationName, setMessages }: AIChatProps) {
 
   const handleFeedback = async () => {
     try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        router.replace('/login');
+        return;
+      }
+
       const response = await fetch(`${ENV.API_URL}/chatbot/feedback`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          await AsyncStorage.removeItem('userToken');
+          router.replace('/login');
+          return;
+        }
+        throw new Error('피드백을 가져오는데 실패했습니다.');
+      }
 
       const data = await response.json();
       if (data.error) throw new Error(data.error);
@@ -57,13 +78,27 @@ export default function AIChat({ situationName, setMessages }: AIChatProps) {
 
   const fetchInitialMessage = async () => {
     try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        router.replace('/login');
+        return;
+      }
+
       const response = await fetch(`${ENV.API_URL}/chatbot/start`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ situation: situationName }),
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          await AsyncStorage.removeItem('userToken');
+          router.replace('/login');
+          return;
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -85,14 +120,32 @@ export default function AIChat({ situationName, setMessages }: AIChatProps) {
     setInputText('');
 
     try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        router.replace('/login');
+        return;
+      }
+
       const response = await fetch(`${ENV.API_URL}/chatbot/continue`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           situation: situationName,
           userText: trimmedInput,
         }),
       });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          await AsyncStorage.removeItem('userToken');
+          router.replace('/login');
+          return;
+        }
+        throw new Error('메시지 전송에 실패했습니다.');
+      }
 
       const data = await response.json();
       setMessages((prev) => [...prev, { isAI: true, text: data.text }]);

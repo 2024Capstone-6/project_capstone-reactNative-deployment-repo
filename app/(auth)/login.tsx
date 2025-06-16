@@ -9,7 +9,7 @@ import { useAuth } from '../../contexts/AuthContext'; // 전역 인증 상태 �
 import { ENV } from '../../config/env'; // 환경 변수 설정
 import { ERROR_MESSAGES } from '../../constants/ErrorMessages';
 import { navigateToHome } from '../../utils/navigation';
-
+import { Ionicons } from '@expo/vector-icons';
 export default function Login() {
   const router = useRouter();
   const { setIsSignedIn } = useAuth();
@@ -137,9 +137,12 @@ export default function Login() {
           <View className="flex-1 h-[1px] bg-gray-300" />
         </View>
 
-        {/*         <TouchableOpacity className="bg-white p-2.5 rounded-lg mt-2.5" onPress={handleLogin}>
+        <TouchableOpacity
+          className="flex-row items-center justify-center bg-white p-2.5 rounded-lg mt-2.5 border border-[#ff6b6b]" /*  onPress={handleLogin} */
+        >
+          <Ionicons name="logo-google" size={24} color="#ff6b6b" className="mr-2" />
           <Text className="text-center font-semibold text-base">Google로 시작하기</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
     </View>
   );

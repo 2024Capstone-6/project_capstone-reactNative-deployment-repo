@@ -4,6 +4,8 @@ import { ThemedText } from '@/components/ThemedText';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useRef } from 'react';
 import { ENV } from '@/config/env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@/contexts/AuthContext';
 
 import AIChat from '@/components/conversation/AIChat';
 import SituationChat from '@/components/conversation/SituationChat';
@@ -19,6 +21,7 @@ export default function ChatScreen() {
   const { situationId, situationName } = useLocalSearchParams();
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
+  const { isSignedIn } = useAuth();
 
   // 학습 모드(true)와 실전 회화 모드(false)를 구분하는 상태
   const [isPracticeMode, setIsPracticeMode] = useState(true);
@@ -46,7 +49,31 @@ export default function ChatScreen() {
   // 초기 질문을 서버에서 가져오는 함수
   const fetchInitialQuestion = async () => {
     try {
-      const response = await fetch(`${ENV.API_URL}/chatbot/questions/${situationId}`);
+      const token = await AsyncStorage.getItem('userToken');
+
+      if (!token) {
+        console.error('인증 토큰이 없습니다.');
+        router.replace('/login');
+        return;
+      }
+
+      const response = await fetch(`${ENV.API_URL}/chatbot/questions/${situationId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          console.error('인증이 만료되었습니다.');
+          await AsyncStorage.removeItem('userToken');
+          router.replace('/login');
+          return;
+        }
+        throw new Error('질문을 불러오는데 실패했습니다.');
+      }
+
       const questions = await response.json();
       if (questions?.[0]) {
         const firstQuestion = questions[0];
@@ -59,6 +86,13 @@ export default function ChatScreen() {
       }
     } catch (error) {
       console.error('초기 질문 로딩 실패:', error);
+      // 에러 메시지를 채팅창에 표시
+      setMessages([
+        {
+          isAI: true,
+          text: '죄송합니다. 질문을 불러오는데 실패했습니다. 다시 시도해주세요.',
+        },
+      ]);
     }
   };
 
