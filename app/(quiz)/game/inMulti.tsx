@@ -76,7 +76,7 @@ export default function InMultiGameScreen() {
     socket.on('gameStarted', () => {
       console.log('게임 시작됨');
       setIsStart(true);
-      // TODO: 게임 화면으로 전환
+      router.push(`/(quiz)/game/multiGame?roomCode=${roomCode}`);
     });
 
     // 에러 핸들링

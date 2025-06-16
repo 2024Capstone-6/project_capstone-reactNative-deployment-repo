@@ -155,6 +155,7 @@ export default function RootLayout() {
               <Stack.Screen name="(quiz)/multi" options={{ headerShown: false }} />
               <Stack.Screen name="(quiz)/game/inSingle" options={{ headerShown: false }} />
               <Stack.Screen name="(quiz)/game/inMulti" options={{ headerShown: false }} />
+              <Stack.Screen name="(quiz)/game/multiGame" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
             </Stack>
           </ThemeProvider>
