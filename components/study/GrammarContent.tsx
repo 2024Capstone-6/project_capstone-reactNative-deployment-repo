@@ -27,6 +27,7 @@ interface GrammarContentProps {
 export const GrammarContent: React.FC<GrammarContentProps> = ({ grammar }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false);
   const flipAnim = useRef(new Animated.Value(0)).current;
 
   const flipCard = () => {
@@ -73,7 +74,9 @@ export const GrammarContent: React.FC<GrammarContentProps> = ({ grammar }) => {
     <View className="flex-1">
       <TouchableOpacity className="flex-1" onPress={flipCard}>
         <View className="flex-row justify-end">
-          {/* 추가적인 버튼 생성을 위한 컨테이너 */}
+          <TouchableOpacity onPress={() => setShowTranslation(!showTranslation)} className="mr-2">
+            <Ionicons name="language-outline" size={24} color={Colors.tint} />
+          </TouchableOpacity>
           <Pressable onPress={() => setIsModalVisible(true)}>
             <Ionicons name="bookmark-outline" size={24} color={Colors.tint} />
           </Pressable>
@@ -84,10 +87,14 @@ export const GrammarContent: React.FC<GrammarContentProps> = ({ grammar }) => {
               <Text className="text-pretty text-4xl font-bold mb-1" style={{ color: Colors.tint }}>
                 {grammar.grammar}
               </Text>
-              <Text className="text-lg text-gray-500 mb-4">{grammar.grammar_furigana}</Text>
-              <Text className="text-pretty text-lg text-center mb-4">{grammar.grammar_meaning}</Text>
-              <Text className="text-pretty text-gray-500 text-lg text-center">{grammar.grammar_example}</Text>
-              <Text className="text-pretty text-gray-500 text-center">{grammar.grammar_e_meaning}</Text>
+              {showTranslation && (
+                <>
+                  <Text className="text-lg text-gray-500 mb-4">{grammar.grammar_furigana}</Text>
+                  <Text className="text-pretty text-lg text-center mb-4">{grammar.grammar_meaning}</Text>
+                  <Text className="text-pretty text-gray-500 text-lg text-center">{grammar.grammar_example}</Text>
+                  <Text className="text-pretty text-gray-500 text-center">{grammar.grammar_e_meaning}</Text>
+                </>
+              )}
             </View>
           </Animated.View>
 
