@@ -37,6 +37,7 @@ interface SituationChatProps {
 export default function SituationChat({ messages, setMessages }: SituationChatProps) {
   const { situationId } = useLocalSearchParams();
   const router = useRouter();
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [nextQuestion, setNextQuestion] = useState<Question | null>(null);
   // 피드백 모달의 상태를 관리
@@ -44,9 +45,50 @@ export default function SituationChat({ messages, setMessages }: SituationChatPr
   const [orderIndex, setOrderIndex] = useState(0);
   const [modalAnimation] = useState(new Animated.Value(Dimensions.get('window').height));
 
-  // 컴포넌트 마운트 시 질문 데이터 로드
+  // 컴포넌트 마운트 시 모든 질문 데이터 로드
   useEffect(() => {
-    fetchQuestions();
+    const loadQuestions = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) {
+          router.replace('/login');
+          return;
+        }
+
+        const response = await fetch(`${ENV.API_URL}/chatbot/questions/${situationId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            await AsyncStorage.removeItem('userToken');
+            router.replace('/login');
+            return;
+          }
+          throw new Error('질문을 불러오는데 실패했습니다.');
+        }
+
+        const loadedQuestions = await response.json();
+        setQuestions(loadedQuestions);
+        if (loadedQuestions?.[0]) {
+          setCurrentQuestion(loadedQuestions[0]);
+          if (loadedQuestions[1]) {
+            setNextQuestion(loadedQuestions[1]);
+          }
+        }
+      } catch (error) {
+        console.error('질문 로딩 실패:', error);
+        setFeedback({
+          message: '질문을 불러오는데 실패했습니다. 다시 시도해주세요.',
+          isCorrect: false,
+        });
+      }
+    };
+
+    loadQuestions();
   }, []);
 
   // 피드백 모달을 표시하는 함수
@@ -72,11 +114,8 @@ export default function SituationChat({ messages, setMessages }: SituationChatPr
         useNativeDriver: true,
       }).start(() => {
         setFeedback(null);
-        // 모달이 닫힐 때 다음 질문으로 전환
         if (selectedChoice?.is_correct && currentQuestion && nextQuestion) {
-          // 마지막 사용자 메시지를 제외한 이전 메시지들
           const filteredMessages = messages.filter((_, index) => index !== messages.length - 1);
-          // 새로운 메시지 목록 생성
           const newMessages = [
             ...filteredMessages,
             { isAI: false, text: currentQuestion.kr_answer, jpText: currentQuestion.jp_answer },
@@ -85,54 +124,15 @@ export default function SituationChat({ messages, setMessages }: SituationChatPr
           ];
           setMessages(newMessages);
 
+          const nextIndex = orderIndex + 1;
+          setOrderIndex(nextIndex);
           setCurrentQuestion(nextQuestion);
-          setOrderIndex((prev) => prev + 1);
-          // 다음 질문 데이터 로드
-          fetchQuestions();
+          if (questions[nextIndex + 1]) {
+            setNextQuestion(questions[nextIndex + 1]);
+          }
         }
       });
     }, 4000);
-  };
-
-  // 서버에서 질문 데이터를 가져오는 함수
-  const fetchQuestions = async () => {
-    try {
-      const token = await AsyncStorage.getItem('userToken');
-      if (!token) {
-        router.replace('/login');
-        return;
-      }
-
-      const response = await fetch(`${ENV.API_URL}/chatbot/questions/${situationId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          await AsyncStorage.removeItem('userToken');
-          router.replace('/login');
-          return;
-        }
-        throw new Error('질문을 불러오는데 실패했습니다.');
-      }
-
-      const questions = await response.json();
-      if (questions?.[0]) {
-        setCurrentQuestion(questions[0]);
-        if (questions[1]) {
-          setNextQuestion(questions[1]);
-        }
-      }
-    } catch (error) {
-      console.error('질문 로딩 실패:', error);
-      setFeedback({
-        message: '질문을 불러오는데 실패했습니다. 다시 시도해주세요.',
-        isCorrect: false,
-      });
-    }
   };
 
   // 사용자가 선택지를 선택했을 때 처리하는 함수
