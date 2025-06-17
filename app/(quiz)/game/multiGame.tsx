@@ -1,5 +1,5 @@
 import { ThemedText } from '@/components/ThemedText';
-import { View, TouchableOpacity, ScrollView } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Text, StyleSheet } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
@@ -253,14 +253,40 @@ export default function MultiGameScreen() {
 
       {/* 모달 */}
       {isModal && (
-        <View className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <View className="w-[80%] h-[10%] bg-white p-6 rounded-xl items-center justify-center">
-            <ThemedText type="title" className="text-center mt-8 mb-8">
-              {isModal}
-            </ThemedText>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalText}>{isModal}</Text>
           </View>
         </View>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalText: {
+    fontSize: 24,
+    textAlign: 'center',
+    color: '#ff6b6b',
+    fontWeight: 'bold',
+    marginVertical: 20,
+  },
+});

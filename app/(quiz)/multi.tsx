@@ -8,7 +8,7 @@ import { useSocket } from '../../contexts/SocketContext';
 import customFetch from '../../util/custom-fetch';
 import { TEST_LEVELS } from '@/constants/TestLevels';
 
-const MAX_PARTICIPANTS = 8;
+const MAX_PARTICIPANTS = 4;
 
 interface Room {
   _id: string;
